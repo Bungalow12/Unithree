@@ -1,20 +1,14 @@
-import * as THREE from 'three';
+import { Object3D } from "./Types";
+import { EngineObject } from "./EngineObject";
 
 /**
  * Main GameObject class. Think MonoBehaviour
  */
-export class GameObject extends THREE.Object3D {
-  constructor() {
+export class GameObject<T extends Object3D> extends EngineObject {
+  object: T;
+
+  constructor(object: T) {
     super();
-
-    this.update = this.update.bind(this);
-  }
-
-  /**
-    * Updates is called once per frame
-    * @param delta the time since the last update
-    */
-  update(delta: number) {
-    // Do nothing by default
+    this.object = object;
   }
 }
