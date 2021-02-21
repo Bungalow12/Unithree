@@ -5,10 +5,14 @@ import { EngineObject } from "./EngineObject";
  * Main GameObject class. Think MonoBehaviour
  */
 export class GameObject<T extends Object3D> extends EngineObject {
-  object: T;
+  protected readonly _object: T;
 
   constructor(object: T) {
     super();
-    this.object = object;
+    this._object = object;
+  }
+
+  get object(): T {
+    return this._object;
   }
 }

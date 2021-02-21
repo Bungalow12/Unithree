@@ -1,8 +1,9 @@
 import * as THREE from "three";
 
 import { GameObject } from "./GameObject";
-import { Object3D, Scene, SupportedCamera } from "./Types";
+import { Object3D, Scene } from "./Types";
 import { EngineObject } from "./EngineObject";
+import { Camera } from "./Camera";
 
 export class Engine {
   clearColor = 0x21252c;
@@ -17,9 +18,12 @@ export class Engine {
     antialias: true,
   });
   private readonly scene: THREE.Scene = new THREE.Scene();
-  private readonly gameObjects: Array<EngineObject> = new Array<EngineObject>();
+  private readonly gameObjects: Map<string, EngineObject> = new Map<
+    string,
+    EngineObject
+  >();
 
-  private mainCamera: SupportedCamera = new THREE.PerspectiveCamera(this.fov);
+  private mainCamera: Camera | null = null;
 
   /**
    * Gets Instance of the GameEngine
@@ -32,42 +36,37 @@ export class Engine {
   }
 
   /**
-   * Adds a basic Object3D to the scene.
-   * @param {Object3D} object
+   * Adds an object to the scene.
+   * @param {Object3D | GameObject} object to add to the scene
    */
-  add = (object: Object3D): void => {
-    this.addGameObject<Object3D>(new GameObject<Object3D>(object));
+  addObjectToScene = <T extends Object3D = Object3D>(
+    object: Object3D | GameObject<T>
+  ): void => {
+    if (object instanceof THREE.Object3D) {
+      this.addGameObject<Object3D>(new GameObject<Object3D>(object));
+      return;
+    }
+    this.addGameObject<T>(object);
   };
 
   /**
    * Adds a GameObject to the scene.
    * @param {GameObject} gameObject
-   * @
    */
-  addGameObject = <T extends Object3D>(gameObject: GameObject<T>): void => {
-    this.gameObjects.push(gameObject);
-    this.scene.add(gameObject.object);
-  };
-
-  /**
-   * Add multiple objects to the scene.
-   * @param {GameObject[]} gameObjects
-   */
-  addAllGameObjects = <T extends Object3D>(
-    gameObjects: GameObject<T>[]
+  private addGameObject = <T extends Object3D>(
+    gameObject: GameObject<T>
   ): void => {
-    gameObjects.forEach((object) => {
-      this.addGameObject<T>(object);
-    });
+    this.gameObjects.set(gameObject.object.uuid, gameObject);
+    this.scene.add(gameObject.object);
   };
 
   /**
    * Add multiple objects to the scene.
    * @param {Object3D[]} objects
    */
-  addAll = (objects: Object3D[]): void => {
+  addObjectsToScene = (objects: Object3D[]): void => {
     objects.forEach((object) => {
-      this.add(object);
+      this.addObjectToScene(object);
     });
   };
 
@@ -78,6 +77,10 @@ export class Engine {
   addScene = (scene: Scene): void => {
     // TODO: Find any GameObjects to add to the processor list
     this.scene.add(scene);
+  };
+
+  setMainCamera = (camera: Camera): void => {
+    this.mainCamera = camera;
   };
 
   private constructor() {
@@ -95,7 +98,10 @@ export class Engine {
     const { clientHeight, clientWidth } = this.renderer.domElement;
     this.renderer.setClearColor(this.clearColor);
     this.renderer.setViewport(0, 0, clientWidth, clientHeight);
-    this.renderer.render(this.scene, this.mainCamera);
+
+    if (this.mainCamera) {
+      this.renderer.render(this.scene, this.mainCamera.object);
+    }
   };
 
   private update = (delta: number): void => {
