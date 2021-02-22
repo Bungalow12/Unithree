@@ -4,12 +4,10 @@ import { GameObject } from "./GameObject";
 /**
  * Main GameObject class. Think MonoBehaviour
  */
-export class Camera extends GameObject<THREE.Camera> {
-  constructor(object: THREE.Camera) {
+export class Camera<
+  T extends THREE.Camera = THREE.Camera
+> extends GameObject<T> {
+  constructor(object: T) {
     super(object);
   }
-
-  getCameraAs = <T extends THREE.Camera>(): T => {
-    return this._object as T;
-  };
 }

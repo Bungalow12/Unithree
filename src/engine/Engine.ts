@@ -1,9 +1,9 @@
 import * as THREE from "three";
 
 import { GameObject } from "./GameObject";
-import { Object3D, Scene } from "./Types";
-import { EngineObject } from "./EngineObject";
+import { Object3D, Scene, Vector2 } from "./Types";
 import { Camera } from "./Camera";
+import { Input } from "../input/InputManager";
 
 export class Engine {
   clearColor = 0x21252c;
@@ -17,11 +17,10 @@ export class Engine {
   private readonly renderer: THREE.WebGLRenderer = new THREE.WebGLRenderer({
     antialias: true,
   });
-  private readonly scene: THREE.Scene = new THREE.Scene();
-  private readonly gameObjects: Map<string, EngineObject> = new Map<
-    string,
-    EngineObject
-  >();
+  private readonly scene = new THREE.Scene();
+  private readonly gameObjects = new Map<string, GameObject>();
+
+  private readonly gameObjectNameMap = new Map<string, string>();
 
   private mainCamera: Camera | null = null;
 
@@ -35,6 +34,17 @@ export class Engine {
     return this._instance;
   }
 
+  get domElement(): HTMLElement {
+    return this.renderer.domElement;
+  }
+
+  get viewHalfSize(): Vector2 {
+    return new THREE.Vector2(
+      this.renderer.domElement.offsetWidth / 2,
+      this.renderer.domElement.offsetHeight / 2
+    );
+  }
+
   /**
    * Adds an object to the scene.
    * @param {Object3D | GameObject} object to add to the scene
@@ -43,7 +53,7 @@ export class Engine {
     object: Object3D | GameObject<T>
   ): void => {
     if (object instanceof THREE.Object3D) {
-      this.addGameObject<Object3D>(new GameObject<Object3D>(object));
+      this.addGameObject<Object3D>(new GameObject(object));
       return;
     }
     this.addGameObject<T>(object);
@@ -56,6 +66,13 @@ export class Engine {
   private addGameObject = <T extends Object3D>(
     gameObject: GameObject<T>
   ): void => {
+    if (gameObject.object.name) {
+      this.gameObjectNameMap.set(
+        gameObject.object.name,
+        gameObject.object.uuid
+      );
+    }
+
     this.gameObjects.set(gameObject.object.uuid, gameObject);
     this.scene.add(gameObject.object);
   };
@@ -79,6 +96,21 @@ export class Engine {
     this.scene.add(scene);
   };
 
+  /**
+   * Removes the object from the scene
+   * @param {Object3D | GameObject} gameObject
+   */
+  removeObjectFromScene = (gameObject: Object3D | GameObject): void => {
+    const object: Object3D =
+      gameObject instanceof THREE.Object3D ? gameObject : gameObject.object;
+
+    if (object.name) {
+      this.gameObjectNameMap.delete(object.name);
+    }
+    this.gameObjects.delete(object.uuid);
+    this.scene.remove(object);
+  };
+
   setMainCamera = (camera: Camera): void => {
     this.mainCamera = camera;
   };
@@ -87,6 +119,7 @@ export class Engine {
     this.renderer.physicallyCorrectLights = true;
     this.renderer.outputEncoding = THREE.sRGBEncoding;
     this.renderer.autoClear = true;
+    this.renderer.domElement.setAttribute("tabIndex", "0");
     if (Engine.isBrowser()) {
       this.renderer.setPixelRatio(window.devicePixelRatio);
     }
@@ -108,6 +141,9 @@ export class Engine {
     this.gameObjects.forEach((gameObject) => {
       gameObject.update(delta);
     });
+
+    // Update input after values had the chance to be read by game objects
+    Input.instance.update(delta);
   };
 
   private gameLoop = () => {
