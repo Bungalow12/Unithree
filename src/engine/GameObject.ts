@@ -36,27 +36,41 @@ export class GameObject<T extends Object3D = Object3D> {
    * Moves an object to a specified location
    * @param {Vector3 | Object3D | GameObject} target
    */
-  moveTo(target: Vector3 | Object3D | GameObject): void {
+  moveTo(target: Vector3 | Object3D | GameObject): Promise<Vector3> {
+    const targetPosition: THREE.Vector3 = new THREE.Vector3();
     if (target instanceof THREE.Vector3) {
-      this.object.position.copy(target);
+      targetPosition.copy(target);
     } else if (target instanceof THREE.Object3D) {
-      this.object.position.copy(target.position);
+      targetPosition.copy(target.position);
     } else {
-      this.object.position.copy(target.object.position);
+      targetPosition.copy(target.object.position);
     }
+
+    this.object.position.copy(targetPosition);
+
+    return new Promise<Vector3>((resolve) => {
+      resolve(targetPosition);
+    });
   }
 
   /**
-   * Lookas at a specified space in the world
+   * Look at a specified space in the world
    * @param {Vector3 | Object3D | GameObject} target
    */
-  lookAt(target: Vector3 | Object3D | GameObject): void {
+  lookAt(target: Vector3 | Object3D | GameObject): Promise<Vector3> {
+    const targetPosition: THREE.Vector3 = new THREE.Vector3();
     if (target instanceof THREE.Vector3) {
-      this.object.lookAt(target);
+      targetPosition.copy(target);
     } else if (target instanceof THREE.Object3D) {
-      this.object.lookAt(target.position);
+      targetPosition.copy(target.position);
     } else {
-      this.object.lookAt(target.object.position);
+      targetPosition.copy(target.object.position);
     }
+
+    this.object.lookAt(targetPosition);
+
+    return new Promise<Vector3>((resolve) => {
+      resolve(targetPosition);
+    });
   }
 }
