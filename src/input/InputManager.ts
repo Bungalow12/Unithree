@@ -1,6 +1,6 @@
-import * as THREE from "three";
-import { Vector2 } from "../engine/Types";
-import { Engine } from "../engine";
+import * as THREE from 'three';
+import { Vector2 } from '../engine/Types';
+import { Engine } from '../engine';
 
 /**
  * The state of the button
@@ -26,7 +26,8 @@ export enum PointerButton {
 export class Input {
   private static _instance: Input | null = null;
 
-  private pointerCoordinates: Vector2 = new THREE.Vector2();
+  private previousPointerCoordinates: Vector2 | null = null;
+  private _pointerCoordinates: Vector2 = new THREE.Vector2();
 
   private keyStates = new Map<string, ButtonState>();
   private pointerButtonStates = new Map<PointerButton, ButtonState>();
@@ -41,16 +42,47 @@ export class Input {
     return this._instance;
   }
 
+  get pointerCoordinates(): Vector2 {
+    return this._pointerCoordinates;
+  }
+
+  get pointerClientCoordinates(): Vector2 {
+    const rect = Engine.instance.rendererRect;
+    const halfSize = Engine.instance.viewHalfSize;
+    return new THREE.Vector2(
+      this._pointerCoordinates.x - rect.x - halfSize.x,
+      this._pointerCoordinates.y - rect.y - halfSize.y,
+    );
+  }
+
+  /**
+   * Gets the value of the axis between -1 and 1.
+   * If Mouse/Pointer requested you will receive the delta between the last 2 inputs
+   * @param {string} axisName the name associated with the axis
+   * @returns {number} -1 <= 0 <= 1 or the delta for pointer coordinates
+   */
+  getAxis = (axisName: string): number => {
+    // TODO: Handle a system for this. Temporarily add MouseX and MouseY
+    const previousPosition = this.previousPointerCoordinates
+      ? this.previousPointerCoordinates
+      : this._pointerCoordinates;
+    if (axisName === 'MouseX') {
+      return this.pointerCoordinates.x - previousPosition.x;
+    }
+
+    if (axisName === 'MouseY') {
+      return this.pointerCoordinates.y - previousPosition.y;
+    }
+    return 0;
+  };
+
   /**
    * Returns true while the user holds down the key identified by name.
    * @param {string} keyName
    * @returns {boolean} True if pressed or held
    */
   getKey = (keyName: string): boolean => {
-    return (
-      this.keyStates.has(keyName) &&
-      this.keyStates.get(keyName) !== ButtonState.Released
-    );
+    return this.keyStates.has(keyName) && this.keyStates.get(keyName) !== ButtonState.Released;
   };
 
   /**
@@ -59,10 +91,7 @@ export class Input {
    * @returns {boolean} True if pressed this frame
    */
   getKeyDown = (keyName: string): boolean => {
-    return (
-      this.keyStates.has(keyName) &&
-      this.keyStates.get(keyName) === ButtonState.Pressed
-    );
+    return this.keyStates.has(keyName) && this.keyStates.get(keyName) === ButtonState.Pressed;
   };
 
   /**
@@ -71,10 +100,7 @@ export class Input {
    * @returns {boolean} True if released this frame
    */
   getKeyUp = (keyName: string): boolean => {
-    return (
-      this.keyStates.has(keyName) &&
-      this.keyStates.get(keyName) === ButtonState.Released
-    );
+    return this.keyStates.has(keyName) && this.keyStates.get(keyName) === ButtonState.Released;
   };
 
   /**
@@ -83,10 +109,7 @@ export class Input {
    * @returns {boolean} True if pressed or held
    */
   getMouseButton = (button: PointerButton): boolean => {
-    return (
-      this.pointerButtonStates.has(button) &&
-      this.pointerButtonStates.get(button) !== ButtonState.Released
-    );
+    return this.pointerButtonStates.has(button) && this.pointerButtonStates.get(button) !== ButtonState.Released;
   };
 
   /**
@@ -95,10 +118,7 @@ export class Input {
    * @returns {boolean} True if pressed this frame
    */
   getMouseButtonDown = (button: PointerButton): boolean => {
-    return (
-      this.pointerButtonStates.has(button) &&
-      this.pointerButtonStates.get(button) === ButtonState.Pressed
-    );
+    return this.pointerButtonStates.has(button) && this.pointerButtonStates.get(button) === ButtonState.Pressed;
   };
 
   /**
@@ -107,10 +127,7 @@ export class Input {
    * @returns {boolean} True if released this frame
    */
   getMouseButtonUp = (button: PointerButton): boolean => {
-    return (
-      this.pointerButtonStates.has(button) &&
-      this.pointerButtonStates.get(button) === ButtonState.Released
-    );
+    return this.pointerButtonStates.has(button) && this.pointerButtonStates.get(button) === ButtonState.Released;
   };
 
   update = (delta: number): void => {
@@ -132,22 +149,25 @@ export class Input {
   };
 
   private constructor() {
-    document.addEventListener("pointermove", this.onPointerMove);
-    document.addEventListener("pointerdown", this.onPointerDown);
-    document.addEventListener("pointerup", this.onPointerUp);
+    document.addEventListener('pointermove', this.onPointerMove);
+    document.addEventListener('pointerdown', this.onPointerDown);
+    document.addEventListener('pointerup', this.onPointerUp);
 
     const domElement = Engine.instance.domElement;
-    domElement.addEventListener("keydown", this.onKeyDown);
-    domElement.addEventListener("keyup", this.onKeyUp);
+    domElement.addEventListener('keydown', this.onKeyDown);
+    domElement.addEventListener('keyup', this.onKeyUp);
   }
 
   private onPointerMove = (event: PointerEvent): void => {
-    const domElement = Engine.instance.domElement;
-    const viewHalfSize = Engine.instance.viewHalfSize;
-    this.pointerCoordinates = new THREE.Vector2(
-      event.pageX - domElement.offsetLeft - viewHalfSize.x,
-      event.pageY - domElement.offsetTop - viewHalfSize.y
-    );
+    const pointerPosition = new THREE.Vector2(event.pageX, event.pageY);
+
+    if (!this.previousPointerCoordinates) {
+      this.previousPointerCoordinates = pointerPosition.clone();
+    } else {
+      this.previousPointerCoordinates = this._pointerCoordinates.clone();
+    }
+
+    this._pointerCoordinates = pointerPosition.clone();
   };
 
   private onPointerDown = (event: PointerEvent): void => {

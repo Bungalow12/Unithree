@@ -1,9 +1,9 @@
-import * as THREE from "three";
+import * as THREE from 'three';
 
-import { GameObject } from "./GameObject";
-import { Object3D, Scene, Vector2 } from "./Types";
-import { Camera } from "./Camera";
-import { Input } from "../input/InputManager";
+import { GameObject } from './GameObject';
+import { Object3D, Scene, Vector2, Vector4 } from './Types';
+import { Camera } from './Camera';
+import { Input } from '../input/InputManager';
 
 export class Engine {
   clearColor = 0x21252c;
@@ -23,6 +23,7 @@ export class Engine {
   private readonly gameObjectNameMap = new Map<string, string>();
 
   private mainCamera: Camera | null = null;
+  private _rendererRect: Vector4 = new THREE.Vector4();
 
   /**
    * Gets Instance of the GameEngine
@@ -38,20 +39,19 @@ export class Engine {
     return this.renderer.domElement;
   }
 
+  get rendererRect(): Vector4 {
+    return this._rendererRect;
+  }
+
   get viewHalfSize(): Vector2 {
-    return new THREE.Vector2(
-      this.renderer.domElement.offsetWidth / 2,
-      this.renderer.domElement.offsetHeight / 2
-    );
+    return new THREE.Vector2(this._rendererRect.width / 2, this._rendererRect.height / 2);
   }
 
   /**
    * Adds an object to the scene.
    * @param {Object3D | GameObject} object to add to the scene
    */
-  addObjectToScene = <T extends Object3D = Object3D>(
-    object: Object3D | GameObject<T>
-  ): void => {
+  addObjectToScene = <T extends Object3D = Object3D>(object: Object3D | GameObject<T>): void => {
     if (object instanceof THREE.Object3D) {
       this.addGameObject<Object3D>(new GameObject(object));
       return;
@@ -63,14 +63,9 @@ export class Engine {
    * Adds a GameObject to the scene.
    * @param {GameObject} gameObject
    */
-  private addGameObject = <T extends Object3D>(
-    gameObject: GameObject<T>
-  ): void => {
+  private addGameObject = <T extends Object3D>(gameObject: GameObject<T>): void => {
     if (gameObject.object.name) {
-      this.gameObjectNameMap.set(
-        gameObject.object.name,
-        gameObject.object.uuid
-      );
+      this.gameObjectNameMap.set(gameObject.object.name, gameObject.object.uuid);
     }
 
     this.gameObjects.set(gameObject.object.uuid, gameObject);
@@ -101,8 +96,7 @@ export class Engine {
    * @param {Object3D | GameObject} gameObject
    */
   removeObjectFromScene = (gameObject: Object3D | GameObject): void => {
-    const object: Object3D =
-      gameObject instanceof THREE.Object3D ? gameObject : gameObject.object;
+    const object: Object3D = gameObject instanceof THREE.Object3D ? gameObject : gameObject.object;
 
     if (object.name) {
       this.gameObjectNameMap.delete(object.name);
@@ -119,13 +113,26 @@ export class Engine {
     this.renderer.physicallyCorrectLights = true;
     this.renderer.outputEncoding = THREE.sRGBEncoding;
     this.renderer.autoClear = true;
-    this.renderer.domElement.setAttribute("tabIndex", "0");
-    if (Engine.isBrowser()) {
+    this.renderer.domElement.setAttribute('tabIndex', '0');
+    this.updateRendererElementRect();
+    if (Engine.isBrowser) {
       this.renderer.setPixelRatio(window.devicePixelRatio);
+      window.addEventListener('resize', this.onResize, false);
+    } else {
+      document.addEventListener('resize', this.onResize, false);
     }
 
     requestAnimationFrame(this.gameLoop);
   }
+
+  private updateRendererElementRect = (): void => {
+    const domRect = this.renderer.domElement.getBoundingClientRect();
+    this._rendererRect.set(domRect.left, domRect.top, domRect.width, domRect.height);
+  };
+
+  private onResize = (): void => {
+    this.updateRendererElementRect();
+  };
 
   private render = (delta: number): void => {
     const { clientHeight, clientWidth } = this.renderer.domElement;
@@ -159,15 +166,15 @@ export class Engine {
    * Is the Engine running in a browser
    * @returns {boolean} true if the engine is running in a browser
    */
-  static isBrowser = (): boolean => {
+  static get isBrowser(): boolean {
     return typeof window !== undefined;
-  };
+  }
 
   /**
    * Is the OS Mac
    * @returns {boolean} true if the OS is Mac
    */
-  static isMac = (): boolean => {
+  static get isMac(): boolean {
     return Engine.isBrowser && /Mac/.test(navigator.platform);
-  };
+  }
 }
