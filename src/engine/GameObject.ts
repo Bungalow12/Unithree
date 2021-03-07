@@ -37,14 +37,7 @@ export class GameObject<T extends Object3D = Object3D> {
    * @param {Vector3 | Object3D | GameObject} target
    */
   moveTo(target: Vector3 | Object3D | GameObject): Promise<Vector3> {
-    const targetPosition: THREE.Vector3 = new THREE.Vector3();
-    if (target instanceof THREE.Vector3) {
-      targetPosition.copy(target);
-    } else if (target instanceof THREE.Object3D) {
-      targetPosition.copy(target.position);
-    } else {
-      targetPosition.copy(target.object.position);
-    }
+    const targetPosition: THREE.Vector3 = GameObject.extractPosition(target);
 
     this.object.position.copy(targetPosition);
 
@@ -58,6 +51,16 @@ export class GameObject<T extends Object3D = Object3D> {
    * @param {Vector3 | Object3D | GameObject} target
    */
   lookAt(target: Vector3 | Object3D | GameObject): Promise<Vector3> {
+    const targetPosition: THREE.Vector3 = GameObject.extractPosition(target);
+
+    this.object.lookAt(targetPosition);
+
+    return new Promise<Vector3>((resolve) => {
+      resolve(targetPosition);
+    });
+  }
+
+  protected static extractPosition = (target: Vector3 | Object3D | GameObject): Vector3 => {
     const targetPosition: THREE.Vector3 = new THREE.Vector3();
     if (target instanceof THREE.Vector3) {
       targetPosition.copy(target);
@@ -66,11 +69,6 @@ export class GameObject<T extends Object3D = Object3D> {
     } else {
       targetPosition.copy(target.object.position);
     }
-
-    this.object.lookAt(targetPosition);
-
-    return new Promise<Vector3>((resolve) => {
-      resolve(targetPosition);
-    });
-  }
+    return targetPosition;
+  };
 }

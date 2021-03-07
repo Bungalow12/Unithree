@@ -2,8 +2,8 @@ import * as THREE from 'three';
 
 import { GameObject } from './GameObject';
 import { Object3D, Scene, Vector2, Vector4 } from './Types';
+import { Input } from '../input';
 import { Camera } from './Camera';
-import { Input } from '../input/InputManager';
 
 export class Engine {
   clearColor = 0x21252c;
@@ -105,6 +105,30 @@ export class Engine {
     this.scene.remove(object);
   };
 
+  /**
+   * Finds an Object by name.
+   * @param {string} name
+   * @returns {GameObject | undefined}
+   */
+  findObjectByName = (name: string): GameObject | undefined => {
+    const id = this.gameObjectNameMap.get(name);
+    if (id) {
+      return this.gameObjects.get(id);
+    }
+  };
+
+  /**
+   * Gets the main camera.
+   * @returns {Camera | null}
+   */
+  getMainCamera = (): Camera | null => {
+    return this.mainCamera;
+  };
+
+  /**
+   * Sets the main camera to use for rendering.
+   * @param {Camera} camera
+   */
   setMainCamera = (camera: Camera): void => {
     this.mainCamera = camera;
   };
