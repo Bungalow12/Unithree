@@ -32,6 +32,8 @@ export class Input {
   private keyStates = new Map<string, ButtonState>();
   private pointerButtonStates = new Map<PointerButton, ButtonState>();
 
+  private _mouseScrollDelta = new THREE.Vector2();
+
   /**
    * Gets Instance of the InputManager
    */
@@ -42,10 +44,18 @@ export class Input {
     return this._instance;
   }
 
+  /**
+   * Gets the pointer coordinates in reference to the window
+   * @returns {Vector2}
+   */
   get pointerCoordinates(): Vector2 {
     return this._pointerCoordinates;
   }
 
+  /**
+   * Gets the pointer coordinates in reference to the renderer element.
+   * @returns {Vector2}
+   */
   get pointerClientCoordinates(): Vector2 {
     const rect = Engine.instance.rendererRect;
     const halfSize = Engine.instance.viewHalfSize;
@@ -53,6 +63,14 @@ export class Input {
       this._pointerCoordinates.x - rect.x - halfSize.x,
       this._pointerCoordinates.y - rect.y - halfSize.y,
     );
+  }
+
+  /**
+   * Gets the mouse scroll delta since last frame
+   * @returns {Vector2}
+   */
+  get mouseScrollDelta(): Vector2 {
+    return this._mouseScrollDelta;
   }
 
   /**
@@ -152,6 +170,7 @@ export class Input {
     document.addEventListener('pointermove', this.onPointerMove);
     document.addEventListener('pointerdown', this.onPointerDown);
     document.addEventListener('pointerup', this.onPointerUp);
+    document.addEventListener('wheel', this.onWheel);
 
     const domElement = Engine.instance.domElement;
     domElement.addEventListener('keydown', this.onKeyDown);
@@ -184,5 +203,13 @@ export class Input {
 
   private onKeyUp = (event: KeyboardEvent): void => {
     this.keyStates.set(event.key, ButtonState.Released);
+  };
+
+  private onWheel = (event: WheelEvent): void => {
+    const deltaX = event.deltaX;
+    const deltaYFactor = Engine.isMac ? -1 : -3;
+    const deltaY = event.deltaMode === 1 ? event.deltaY / deltaYFactor : event.deltaY / (deltaYFactor * 10);
+
+    this._mouseScrollDelta.set(deltaX, deltaY);
   };
 }

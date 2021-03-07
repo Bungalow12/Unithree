@@ -138,6 +138,7 @@ export class Engine {
     this.renderer.outputEncoding = THREE.sRGBEncoding;
     this.renderer.autoClear = true;
     this.renderer.domElement.setAttribute('tabIndex', '0');
+    this.renderer.domElement.addEventListener('contextmenu', this.onContextMenu);
     this.updateRendererElementRect();
     if (Engine.isBrowser) {
       this.renderer.setPixelRatio(window.devicePixelRatio);
@@ -156,6 +157,10 @@ export class Engine {
 
   private onResize = (): void => {
     this.updateRendererElementRect();
+  };
+
+  private onContextMenu = (event: Event): void => {
+    event.preventDefault();
   };
 
   private render = (delta: number): void => {

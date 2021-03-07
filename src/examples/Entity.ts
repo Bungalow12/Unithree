@@ -207,11 +207,20 @@ export class Entity<T extends THREE.Object3D> extends GameObject<T> {
   }
 
   /**
+   * Gets the lerp ratio based on the time since last frame and applying damping
+   * @param {number} delta time since last frame
+   * @returns {number}
+   */
+  protected getLerpRatio = (delta: number): number => {
+    return 1.0 - Math.exp(-this.dampingFactor * delta * FPS_60);
+  };
+
+  /**
    * Updates the values for smooth motion
    * @param {number} delta time since last frame
    */
   protected updateMotion = (delta: number): void => {
-    const lerpRatio = 1.0 - Math.exp(-this.dampingFactor * delta * FPS_60);
+    const lerpRatio = this.getLerpRatio(delta);
 
     const lookAtPosition = this.lookAtTargetEnd ?? this.lookAtTarget;
     const deltaTheta = this.sphericalEnd.theta - this.spherical.theta;

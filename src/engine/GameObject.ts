@@ -60,7 +60,7 @@ export class GameObject<T extends Object3D = Object3D> {
     });
   }
 
-  protected static extractPosition = (target: Vector3 | Object3D | GameObject): Vector3 => {
+  protected static extractPosition = (target: Vector3 | Object3D | GameObject): THREE.Vector3 => {
     const targetPosition: THREE.Vector3 = new THREE.Vector3();
     if (target instanceof THREE.Vector3) {
       targetPosition.copy(target);
