@@ -11,7 +11,7 @@ export class Engine {
   near = 0.01;
   far = 1000;
 
-  private static _instance: Engine | null = null;
+  private static _instance: Engine | null = new Engine();
 
   private readonly clock: THREE.Clock = new THREE.Clock();
   private readonly renderer: THREE.WebGLRenderer = new THREE.WebGLRenderer({

@@ -1,6 +1,5 @@
 import * as THREE from 'three';
-import { Vector2 } from '../engine/Types';
-import { Engine } from '../engine';
+import { Engine, Vector2 } from '../engine';
 
 /**
  * The state of the button
@@ -24,7 +23,7 @@ export enum PointerButton {
  * Class that processes user input and allows for easy reading of the states and values
  */
 export class Input {
-  private static _instance: Input | null = null;
+  private static _instance: Input | null = new Input();
 
   private previousPointerCoordinates: Vector2 | null = null;
   private _pointerCoordinates: Vector2 = new THREE.Vector2();
