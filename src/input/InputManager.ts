@@ -33,6 +33,7 @@ export class Input {
   private pointerButtonStates = new Map<PointerButton, ButtonState>();
 
   private _mouseScrollDelta = new THREE.Vector2();
+  private _mouseScrollDeltaMode = 0;
 
   /**
    * Gets Instance of the InputManager
@@ -49,7 +50,7 @@ export class Input {
    * @returns {Vector2}
    */
   get pointerCoordinates(): Vector2 {
-    return this._pointerCoordinates;
+    return this._pointerCoordinates.clone();
   }
 
   /**
@@ -70,7 +71,11 @@ export class Input {
    * @returns {Vector2}
    */
   get mouseScrollDelta(): Vector2 {
-    return this._mouseScrollDelta;
+    return this._mouseScrollDelta.clone();
+  }
+
+  get mouseScrollDeltaMode(): number {
+    return this._mouseScrollDeltaMode;
   }
 
   /**
@@ -164,6 +169,8 @@ export class Input {
         this.pointerButtonStates.delete(key);
       }
     });
+
+    this._mouseScrollDelta.set(0, 0);
   };
 
   private constructor() {
@@ -206,10 +213,9 @@ export class Input {
   };
 
   private onWheel = (event: WheelEvent): void => {
-    const deltaX = event.deltaX;
-    const deltaYFactor = Engine.isMac ? -1 : -3;
-    const deltaY = event.deltaMode === 1 ? event.deltaY / deltaYFactor : event.deltaY / (deltaYFactor * 10);
+    event.preventDefault();
 
-    this._mouseScrollDelta.set(deltaX, deltaY);
+    this._mouseScrollDelta.set(event.deltaX, event.deltaY);
+    this._mouseScrollDeltaMode = event.deltaMode;
   };
 }
