@@ -1,3 +1,2 @@
-export * from "./Engine";
-export * from "./GameObject";
-export * from "./Types";
+export * from './Engine';
+export * from './GameObject';

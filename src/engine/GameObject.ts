@@ -1,10 +1,9 @@
 import * as THREE from 'three';
-import { Object3D, Vector3 } from './Types';
 
 /**
  * Main GameObject class. Think MonoBehaviour
  */
-export class GameObject<T extends Object3D = Object3D> {
+export class GameObject<T extends THREE.Object3D = THREE.Object3D> {
   protected readonly _object: T;
 
   constructor(object: T) {
@@ -34,33 +33,41 @@ export class GameObject<T extends Object3D = Object3D> {
 
   /**
    * Moves an object to a specified location
-   * @param {Vector3 | Object3D | GameObject} target
+   * @param {THREE.Vector3 | THREE.Object3D | GameObject} target
    */
-  moveTo(target: Vector3 | Object3D | GameObject): Promise<Vector3> {
+  moveTo(target: THREE.Vector3 | THREE.Object3D | GameObject): Promise<THREE.Vector3> {
     const targetPosition: THREE.Vector3 = GameObject.extractPosition(target);
 
     this.object.position.copy(targetPosition);
 
-    return new Promise<Vector3>((resolve) => {
+    return new Promise<THREE.Vector3>((resolve) => {
       resolve(targetPosition);
     });
   }
 
   /**
    * Look at a specified space in the world
-   * @param {Vector3 | Object3D | GameObject} target
+   * @param {THREE.Vector3 | THREE.Object3D | GameObject} target
    */
-  lookAt(target: Vector3 | Object3D | GameObject): Promise<Vector3> {
+  lookAt(target: THREE.Vector3 | THREE.Object3D | GameObject): Promise<THREE.Vector3> {
     const targetPosition: THREE.Vector3 = GameObject.extractPosition(target);
 
     this.object.lookAt(targetPosition);
 
-    return new Promise<Vector3>((resolve) => {
+    return new Promise<THREE.Vector3>((resolve) => {
       resolve(targetPosition);
     });
   }
 
-  protected static extractPosition = (target: Vector3 | Object3D | GameObject): THREE.Vector3 => {
+  /**
+   * Makes a game object a child of another object.
+   * @param gameObject
+   */
+  addChild = (gameObject: GameObject): void => {
+    this._object.add(gameObject.object);
+  };
+
+  protected static extractPosition = (target: THREE.Vector3 | THREE.Object3D | GameObject): THREE.Vector3 => {
     const targetPosition: THREE.Vector3 = new THREE.Vector3();
     if (target instanceof THREE.Vector3) {
       targetPosition.copy(target);

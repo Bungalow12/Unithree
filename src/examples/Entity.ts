@@ -1,12 +1,6 @@
 import * as THREE from 'three';
-import { Engine, GameObject, Object3D, Vector3 } from '..';
-import {
-  approximatelySphericalEqual,
-  approximatelyVector3Equal,
-  AXIS_Y,
-  FPS_60,
-  PI_2,
-} from '../utilities/MathUtilities';
+import { Engine, GameObject } from '../engine';
+import { approximatelyVector3Equal, FPS_60 } from '../utilities/MathUtilities';
 
 /**
  * Example of a class that adds basic actions and smooth transformations to a standard Game Object
@@ -15,19 +9,13 @@ export class Entity<T extends THREE.Object3D> extends GameObject<T> {
   protected targetPosition = new THREE.Vector3();
   protected targetPositionEnd = this.targetPosition.clone();
   protected lookAtTarget = new THREE.Vector3();
-  protected lookAtTargetEnd: Vector3 | null = null;
+  protected lookAtTargetEnd: THREE.Vector3 | null = null;
   protected rotation = new THREE.Euler();
   protected rotationEnd: THREE.Euler = this.rotation.clone();
-  protected spherical = new THREE.Spherical();
-  protected sphericalEnd: THREE.Spherical = this.spherical.clone();
-  protected orbiting = false;
 
-  protected yAxisUpSpace = new THREE.Quaternion().setFromUnitVectors(this.object.up, AXIS_Y);
-  protected yAxisUpSpaceInverse = this.yAxisUpSpace.clone().invert();
-
-  protected moveToCallback: ((target: Vector3) => void) | undefined;
+  protected moveToCallback: ((target: THREE.Vector3) => void) | undefined;
   protected moveToErrorCallback: ((error: Error) => void) | undefined;
-  protected lookAtCallback: ((target: Vector3) => void) | undefined;
+  protected lookAtCallback: ((target: THREE.Vector3) => void) | undefined;
   protected lookAtErrorCallback: ((error: Error) => void) | undefined;
 
   dampingFactor = 0.05;
@@ -37,8 +25,6 @@ export class Entity<T extends THREE.Object3D> extends GameObject<T> {
 
     this.rotate = this.rotate.bind(this);
     this.rotateTo = this.rotateTo.bind(this);
-    this.sphericalRotate = this.sphericalRotate.bind(this);
-    this.sphericalRotateTo = this.sphericalRotateTo.bind(this);
     this.move = this.move.bind(this);
     this.forward = this.forward.bind(this);
     this.backward = this.backward.bind(this);
@@ -64,48 +50,10 @@ export class Entity<T extends THREE.Object3D> extends GameObject<T> {
    * @param {boolean} smooth flag determines whether the motion is smooth or instantaneous. Default is true
    */
   rotateTo(xAngle: number, yAngle: number, zAngle: number, smooth = true): void {
-    // If we were orbiting reset rotations from the object.
-    if (this.orbiting) {
-      this.rotationEnd.copy(this.object.rotation);
-      this.rotation.copy(this.rotationEnd);
-    }
-
-    this.orbiting = false;
     this.rotationEnd = new THREE.Euler(xAngle, yAngle, zAngle);
 
     if (!smooth) {
       this.rotation.copy(this.rotationEnd);
-    }
-  }
-
-  /**
-   * Rotates using spherical coordinates by the specified degrees
-   * @param {number} azimuthAngle
-   * @param {number} polarAngle
-   * @param {number} distance default is 1
-   * @param {boolean} smooth flag determines whether the motion is smooth or instantaneous. Default is true
-   */
-  sphericalRotate(azimuthAngle: number, polarAngle: number, distance = 1, smooth = true): void {
-    const sphericalEnd = this.sphericalEnd ?? this.spherical;
-    this.sphericalRotateTo(sphericalEnd.theta + azimuthAngle, sphericalEnd.phi + polarAngle, distance, smooth);
-  }
-
-  /**
-   * Rotates using spherical coordinates to the specified degrees
-   * @param {number} azimuthAngle
-   * @param {number} polarAngle
-   * @param {number} distance default is 1
-   * @param {boolean} smooth flag determines whether the motion is smooth or instantaneous. Default is true
-   */
-  sphericalRotateTo(azimuthAngle: number, polarAngle: number, distance = 1, smooth = true): void {
-    const theta = THREE.MathUtils.clamp(azimuthAngle, -Infinity, Infinity);
-    const phi = THREE.MathUtils.clamp(polarAngle, 0, Math.PI);
-
-    this.orbiting = true;
-    this.sphericalEnd = new THREE.Spherical(distance, phi, theta);
-
-    if (!smooth) {
-      this.spherical.copy(this.sphericalEnd);
     }
   }
 
@@ -157,14 +105,14 @@ export class Entity<T extends THREE.Object3D> extends GameObject<T> {
 
   /**
    * Moves the entity to a specific location
-   * @param {Vector3 | Object3D | GameObject} target
+   * @param {THREE.Vector3 | THREE.Object3D | GameObject} target
    * @param {boolean} smooth
-   * @returns {Promise<Vector3>}
+   * @returns {Promise<THREE.Vector3>}
    */
-  moveTo(target: Vector3 | Object3D | GameObject, smooth = true): Promise<Vector3> {
+  moveTo(target: THREE.Vector3 | THREE.Object3D | GameObject, smooth = true): Promise<THREE.Vector3> {
     this.targetPositionEnd = GameObject.extractPosition(target);
 
-    return new Promise<Vector3>((resolve, reject) => {
+    return new Promise<THREE.Vector3>((resolve, reject) => {
       if (!smooth) {
         this.targetPosition.copy(this.targetPositionEnd);
         resolve(this.targetPositionEnd);
@@ -177,15 +125,15 @@ export class Entity<T extends THREE.Object3D> extends GameObject<T> {
 
   /**
    * Makes the entity look at a specific location.
-   * @param {Vector3 | Object3D | GameObject} target
+   * @param {THREE.Vector3 | THREE.Object3D | GameObject} target
    * @param {boolean} smooth
-   * @returns {Promise<Vector3>}
+   * @returns {Promise<THREE.Vector3>}
    */
-  lookAt(target: Vector3 | Object3D | GameObject, smooth = true): Promise<Vector3> {
+  lookAt(target: THREE.Vector3 | THREE.Object3D | GameObject, smooth = true): Promise<THREE.Vector3> {
     const targetPosition = GameObject.extractPosition(target);
     this.lookAtTargetEnd = targetPosition;
 
-    return new Promise<Vector3>((resolve, reject) => {
+    return new Promise<THREE.Vector3>((resolve, reject) => {
       if (!smooth) {
         this.lookAtTarget.copy(targetPosition);
         resolve(targetPosition);
@@ -223,9 +171,6 @@ export class Entity<T extends THREE.Object3D> extends GameObject<T> {
     const lerpRatio = this.getLerpRatio(delta);
 
     const lookAtPosition = this.lookAtTargetEnd ?? this.lookAtTarget;
-    const deltaTheta = this.sphericalEnd.theta - this.spherical.theta;
-    const deltaPhi = this.sphericalEnd.phi - this.spherical.phi;
-    const deltaRadius = this.sphericalEnd.radius - this.spherical.radius;
     const deltaTargetPosition = new THREE.Vector3().subVectors(this.targetPositionEnd, this.targetPosition);
     const deltaLookAtTarget = new THREE.Vector3().subVectors(lookAtPosition, this.lookAtTarget);
     const deltaRotation = new THREE.Euler(
@@ -233,16 +178,6 @@ export class Entity<T extends THREE.Object3D> extends GameObject<T> {
       this.rotationEnd.y - this.rotation.y,
       this.rotationEnd.z - this.rotation.z,
     );
-
-    if (approximatelySphericalEqual(this.sphericalEnd, this.spherical)) {
-      this.spherical.copy(this.sphericalEnd);
-    } else {
-      this.spherical.set(
-        this.spherical.radius + deltaRadius * lerpRatio,
-        this.spherical.phi + deltaPhi * lerpRatio,
-        this.spherical.theta + deltaTheta * lerpRatio,
-      );
-    }
 
     if (approximatelyVector3Equal(this.targetPositionEnd, this.targetPosition)) {
       this.targetPosition.copy(this.targetPositionEnd);
@@ -278,15 +213,10 @@ export class Entity<T extends THREE.Object3D> extends GameObject<T> {
     }
 
     const lookAtPosition = this.lookAtTargetEnd ?? this.lookAtTarget;
-    if (this.lookAtTarget.equals(lookAtPosition)) {
-      this.lookAtTargetEnd = null;
-      this.rotationEnd.copy(this.object.rotation);
-      this.rotation.copy(this.rotationEnd);
-      if (this.lookAtCallback) {
-        this.lookAtCallback(this.lookAtTarget);
-        this.lookAtCallback = undefined;
-        this.lookAtErrorCallback = undefined;
-      }
+    if (this.lookAtCallback && this.lookAtTarget.equals(lookAtPosition)) {
+      this.lookAtCallback(this.lookAtTarget);
+      this.lookAtCallback = undefined;
+      this.lookAtErrorCallback = undefined;
     }
   };
 
@@ -299,29 +229,18 @@ export class Entity<T extends THREE.Object3D> extends GameObject<T> {
       return;
     }
 
-    if (this.orbiting) {
-      this.spherical.makeSafe();
-      this.object.position
-        .setFromSpherical(this.spherical)
-        .applyQuaternion(this.yAxisUpSpaceInverse)
-        .add(this.targetPosition);
-      this.object.lookAt(this.targetPosition);
-    } else {
-      this.object.rotation.copy(this.rotation);
-      this.object.position.copy(this.targetPosition);
+    if (this.lookAtTargetEnd && this.lookAtTarget.equals(this.lookAtTargetEnd)) {
+      this.lookAtTargetEnd = null;
+      this.rotationEnd.copy(this.object.rotation);
+      this.rotation.copy(this.rotationEnd);
     }
+
+    this.object.rotation.copy(this.rotation);
+    this.object.position.copy(this.targetPosition);
+    this.object.updateMatrixWorld(true);
 
     if (this.lookAtTargetEnd) {
       this.object.lookAt(this.lookAtTarget);
     }
-  };
-
-  private normalizeRotation = (): void => {
-    const sphericalEnd = this.sphericalEnd ? this.sphericalEnd : this.spherical;
-    sphericalEnd.theta = sphericalEnd.theta % PI_2;
-    if (sphericalEnd.theta < 0) {
-      sphericalEnd.theta += PI_2;
-    }
-    this.spherical.theta += PI_2 * Math.round((sphericalEnd.theta - this.spherical.theta) / PI_2);
   };
 }

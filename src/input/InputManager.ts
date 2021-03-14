@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { Engine, Vector2 } from '../engine';
+import { Engine } from '../engine';
 
 /**
  * The state of the button
@@ -23,10 +23,10 @@ export enum PointerButton {
  * Class that processes user input and allows for easy reading of the states and values
  */
 export class Input {
-  private static _instance: Input | null = new Input();
+  private static _instance: Input | null = null;
 
-  private previousPointerCoordinates: Vector2 | null = null;
-  private _pointerCoordinates: Vector2 = new THREE.Vector2();
+  private previousPointerCoordinates: THREE.Vector2 | null = null;
+  private _pointerCoordinates: THREE.Vector2 = new THREE.Vector2();
 
   private keyStates = new Map<string, ButtonState>();
   private pointerButtonStates = new Map<PointerButton, ButtonState>();
@@ -46,17 +46,17 @@ export class Input {
 
   /**
    * Gets the pointer coordinates in reference to the window
-   * @returns {Vector2}
+   * @returns {THREE.Vector2}
    */
-  get pointerCoordinates(): Vector2 {
+  get pointerCoordinates(): THREE.Vector2 {
     return this._pointerCoordinates.clone();
   }
 
   /**
    * Gets the pointer coordinates in reference to the renderer element.
-   * @returns {Vector2}
+   * @returns {THREE.Vector2}
    */
-  get pointerClientCoordinates(): Vector2 {
+  get pointerClientCoordinates(): THREE.Vector2 {
     const rect = Engine.instance.rendererRect;
     const halfSize = Engine.instance.viewHalfSize;
     return new THREE.Vector2(
@@ -67,9 +67,9 @@ export class Input {
 
   /**
    * Gets the mouse scroll delta since last frame
-   * @returns {Vector2}
+   * @returns {THREE.Vector2}
    */
-  get mouseScrollDelta(): Vector2 {
+  get mouseScrollDelta(): THREE.Vector2 {
     return this._mouseScrollDelta.clone();
   }
 
@@ -89,11 +89,11 @@ export class Input {
       ? this.previousPointerCoordinates
       : this._pointerCoordinates;
     if (axisName === 'MouseX') {
-      return this.pointerCoordinates.x - previousPosition.x;
+      return previousPosition.x - this.pointerCoordinates.x;
     }
 
     if (axisName === 'MouseY') {
-      return this.pointerCoordinates.y - previousPosition.y;
+      return previousPosition.y - this.pointerCoordinates.y;
     }
     return 0;
   };
@@ -174,13 +174,13 @@ export class Input {
 
   private constructor() {
     document.addEventListener('pointermove', this.onPointerMove);
-    document.addEventListener('pointerdown', this.onPointerDown);
     document.addEventListener('pointerup', this.onPointerUp);
-    document.addEventListener('wheel', this.onWheel);
 
     const domElement = Engine.instance.domElement;
+    domElement.addEventListener('pointerdown', this.onPointerDown);
     domElement.addEventListener('keydown', this.onKeyDown);
     domElement.addEventListener('keyup', this.onKeyUp);
+    domElement.addEventListener('wheel', this.onWheel);
   }
 
   private onPointerMove = (event: PointerEvent): void => {
