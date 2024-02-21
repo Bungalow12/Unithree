@@ -41,9 +41,8 @@ export class Entity extends Object3D {
     this.isDead = true;
   }
 
-// eslint-disable-next-line prettier/prettier
-  public override add(...objects: EntityChildren[]): this {
-    super.add(...objects as never[])
+  public add(...objects: EntityChildren[]): this {
+    super.add(...(objects as never[]));
     return this;
   }
 
