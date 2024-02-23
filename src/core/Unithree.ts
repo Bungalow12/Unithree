@@ -21,36 +21,19 @@ class UnithreeScene extends THREE.Scene {
 
 let _camera: THREE.Camera;
 let _renderer: THREE.WebGLRenderer;
-let needsUpdate = true;
 let animationLoopId: number;
 
 const scene: THREE.Scene = new UnithreeScene();
 const clock: THREE.Clock = new THREE.Clock();
 
-const entities: Entity[] = [];
+const entities: Map<string, Entity> = new Map<string, Entity>();
 const plugins: UnithreePlugin[] = [];
-
-/**
- * Discovers new entities that need processing only if the scene changes.
- */
-const discoverEntities = () => {
-  scene.traverse((child) => {
-    if (child instanceof Entity) {
-      entities.push(child);
-    }
-  });
-};
 
 /**
  * The main animation loop. This will process plugins and Entity children to provide callbacks for each entity
  */
 const animationLoop = () => {
   animationLoopId = requestAnimationFrame(animationLoop);
-
-  if (needsUpdate) {
-    needsUpdate = false;
-    discoverEntities();
-  }
 
   // Handle start / destroy
   const toDelete: Entity[] = [];
@@ -66,7 +49,15 @@ const animationLoop = () => {
 
   toDelete.forEach((entity) => {
     entity.removeFromParent();
-    needsUpdate = true;
+    const removeIds: string[] = [entity.uuid];
+    entity.traverse((child) => {
+      if (child instanceof Entity) {
+        removeIds.push(child.uuid);
+      }
+    });
+
+    // Remove from watched entities
+    removeIds.forEach((uuid) => entities.delete(uuid));
   });
 
   _renderer.render(scene, _camera);
@@ -130,8 +121,14 @@ const stop = (): void => {
 const instantiateObject = (object: UnithreeObject, parent?: THREE.Object3D): UnithreeObject => {
   parent = parent ?? scene;
   if (object instanceof Entity) {
-    needsUpdate = true;
+    entities.set(object.uuid, object);
   }
+
+  object.traverse((child) => {
+    if (child instanceof Entity) {
+      entities.set(child.uuid, child);
+    }
+  });
   parent.add(object);
 
   return object;
