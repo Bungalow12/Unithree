@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Basic Entity Example</title>
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <!--<link rel="stylesheet" type="text/css" href="../../main.css">-->
+</head>
+<body>
+<div id="info">
+    Basic Entity Example
+</div>
+
+<script type="importmap">
+    {
+        "imports": {
+            "unithree": "../../../../dist/Unithree.js",
+            "unithree-examples": "../../../../dist/examples/index.js"
+        }
+    }
+</script>
+
+<script type="module">
+  import {UnithreeState} from '../../dist/index.js';
+  import {RotatingCube} from '../../dist/examples/index.js';
+
+  document.body.append(Unithree.init());
+
+  const cube = new RotatingCube();
+  UnithreeState.instantiateObject(cube);
+
+  camera.position.z = 5;
+</script>
+</body>
+</html>

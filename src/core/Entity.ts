@@ -3,7 +3,8 @@ import { Object3D } from 'three';
 import { Component } from './Component';
 
 /**
- * The main Unithree engine object. This is an Object3D at its base with the updated processing
+ * The main Unithree object able to contain components and has event functions called by the system.
+ * This is an Object3D at its base with the updated processing.
  */
 export class Entity extends Object3D {
   protected isEntity = true;
@@ -30,19 +31,19 @@ export class Entity extends Object3D {
     this.onDestroy = this.onDestroy.bind(this);
   }
 
-  public onStart(deltaTime: number): void {
+  public onStart(deltaTime: number, isPaused: boolean): void {
     this.didStart = true;
   }
 
-  public onUpdate(deltaTime: number): void {
+  public onUpdate(deltaTime: number, isPaused: boolean): void {
     // Does nothing
   }
 
-  public onLateUpdate(deltaTime: number): void {
+  public onLateUpdate(deltaTime: number, isPaused: boolean): void {
     // Does nothing
   }
 
-  public onDestroy(deltaTime: number): void {
+  public onDestroy(deltaTime: number, isPaused: boolean): void {
     this.isDead = true;
   }
 
@@ -52,7 +53,7 @@ export class Entity extends Object3D {
   }
 
   public addComponent = (...components: Component[]): this => {
-    this.components.push(components);
+    this.components.push(...components);
     return this;
   };
 

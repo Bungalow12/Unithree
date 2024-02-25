@@ -2,10 +2,16 @@
   "name": "unithree",
   "version": "0.0.1",
   "description": "Unity3D inspired ThreeJS Game Engine",
-  "main": "./dist/index.js",
+  "main": "./dist/Unithree.js",
+  "type": "module",
   "files": [
     "dist"
   ],
+  "exports": {
+    ".": {
+      "import": "./dist/unithree.js"
+    }
+  },
   "dependencies": {
     "three": "^0.155.0",
     "three-stdlib": "^2.25.0"

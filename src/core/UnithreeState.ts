@@ -22,6 +22,7 @@ class UnithreeScene extends THREE.Scene {
 let _camera: THREE.Camera;
 let _renderer: THREE.WebGLRenderer;
 let animationLoopId: number;
+let isPaused = false;
 
 const scene: THREE.Scene = new UnithreeScene();
 const clock: THREE.Clock = new THREE.Clock();
@@ -39,7 +40,7 @@ const animationLoop = () => {
   const toDelete: Entity[] = [];
   entities.forEach((entity) => {
     if (!entity.didStart) {
-      entity.onStart(clock.getDelta());
+      entity.onStart(clock.getDelta(), isPaused);
     }
 
     if (entity.isDead) {
@@ -69,10 +70,10 @@ const animationLoop = () => {
 
   // Handle Update
   entities.forEach((entity) => {
-    entity.onUpdate(clock.getDelta());
+    entity.onUpdate(clock.getDelta(), isPaused);
   });
   entities.forEach((entity) => {
-    entity.onLateUpdate(clock.getDelta());
+    entity.onLateUpdate(clock.getDelta(), isPaused);
   });
 };
 
@@ -134,14 +135,26 @@ const instantiateObject = (object: UnithreeObject, parent?: THREE.Object3D): Uni
   return object;
 };
 
-export const Unithree = {
+/**
+ * The Unithree system state object. This provides access to the scene, renderer and active camera and processes the animation loop
+ */
+export const UnithreeState = {
   addPlugins,
   initialize,
   start,
   stop,
   instantiateObject,
+  get isPaused(): boolean {
+    return isPaused;
+  },
+  set isPaused(value: boolean) {
+    isPaused = value;
+  },
   getScene: (): THREE.Scene => scene,
   getCamera: (): THREE.Camera => _camera,
+  setCamera: (camera: THREE.Camera): void => {
+    _camera = camera;
+  },
   getRenderer: (): THREE.WebGLRenderer => _renderer,
   getClock: (): THREE.Clock => clock,
 };
