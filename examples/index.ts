@@ -1,1 +1,1 @@
-export * from './basic_entity_example';
+export * from './entities';

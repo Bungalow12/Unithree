@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { Entity } from './Entity';
-import { UnithreePlugin } from './UnithreePlugin';
+import { ExecutionType, UnithreePlugin } from './UnithreePlugin';
 
 /**
  * Unithree engine root. Used for all the minimal requirements to run the system.
@@ -13,7 +13,7 @@ type UnithreeObject = THREE.Object3D | Entity;
 
 class UnithreeScene extends THREE.Scene {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public add(...object: THREE.Object3D[]): this {
+  public add(...objects: THREE.Object3D[]): this {
     console.error('Please use Unithree.instantiateObject instead.');
     return this;
   }
@@ -28,7 +28,7 @@ const scene: THREE.Scene = new UnithreeScene();
 const clock: THREE.Clock = new THREE.Clock();
 
 const entities: Map<string, Entity> = new Map<string, Entity>();
-const plugins: UnithreePlugin[] = [];
+const _plugins: UnithreePlugin[] = [];
 
 /**
  * The main animation loop. This will process plugins and Entity children to provide callbacks for each entity
@@ -62,7 +62,7 @@ const animationLoop = () => {
   _renderer.render(scene, _camera);
 
   // Run the plugins attached
-  plugins.forEach((plugin) => {
+  _plugins.forEach((plugin) => {
     plugin.run();
   });
 
@@ -80,7 +80,16 @@ const animationLoop = () => {
  * @param {UnithreePlugin} plugins 1 or more plugins
  */
 const addPlugins = (...plugins: UnithreePlugin[]): void => {
-  plugins.push(...plugins);
+  plugins.forEach((plugin) => {
+    switch (plugin.executionType) {
+      case ExecutionType.ONCE:
+        plugin.run();
+        break;
+      case ExecutionType.ALWAYS:
+      default:
+        _plugins.push(plugin);
+    }
+  });
 };
 
 /**

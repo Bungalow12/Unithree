@@ -9,7 +9,7 @@ import { Component } from './Component';
 export class Entity extends Object3D {
   protected isEntity = true;
   protected isEnabled;
-  protected components: Component[] = [];
+  protected _components: Component[] = [];
   protected didStart = false;
   protected _isDead = false;
 
@@ -35,6 +35,10 @@ export class Entity extends Object3D {
    */
   public set enabled(value: boolean) {
     this.isEnabled = value;
+  }
+
+  public get components(): Component[] {
+    return this._components;
   }
 
   constructor(isEnabled = true) {
@@ -105,7 +109,7 @@ export class Entity extends Object3D {
    * @returns {this} this object for chaining
    */
   public addComponent = (...components: Component[]): this => {
-    this.components.push(...components);
+    this._components.push(...components);
     return this;
   };
 
