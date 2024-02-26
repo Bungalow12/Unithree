@@ -2,7 +2,7 @@ module.exports = {
   parser: "@typescript-eslint/parser",
   parserOptions: {
     ecmaVersion: 2015, // Allow for parsing of modern ECMAScript features
-    sourceType: "module",
+    sourceType: "commonjs",
   },
   extends: [
     "plugin:@typescript-eslint/recommended",

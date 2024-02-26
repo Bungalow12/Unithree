@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { Entity, UnithreeState } from '../../src/core';
+import { Entity, UnithreeState } from '../../src';
 
 export class RotatingCube extends Entity {
   constructor() {
@@ -13,7 +13,7 @@ export class RotatingCube extends Entity {
     UnithreeState.instantiateObject(cube, this);
   }
 
-  public onUpdate(deltaTime: number, isPaused: boolean) {
+  public onUpdate(deltaTime: number, isPaused: boolean): this {
     super.onUpdate(deltaTime, isPaused);
 
     // Rotate the cube
