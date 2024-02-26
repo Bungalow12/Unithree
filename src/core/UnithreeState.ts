@@ -39,9 +39,7 @@ const animationLoop = () => {
   // Handle start / destroy
   const toDelete: Entity[] = [];
   entities.forEach((entity) => {
-    if (!entity.didStart) {
-      entity.onStart(clock.getDelta(), isPaused);
-    }
+    entity.onStart(clock.getDelta(), isPaused);
 
     if (entity.isDead) {
       toDelete.push(entity);
