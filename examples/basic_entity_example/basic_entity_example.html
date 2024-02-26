@@ -14,15 +14,15 @@
 <script type="importmap">
     {
         "imports": {
-            "unithree": "../../../../dist/Unithree.js",
-            "unithree-examples": "../../../../dist/examples/index.js"
+            "unithree": "../../dist/unithree.bundle.js",
+            "unithree-examples": "../../dist/examples/index.js"
         }
     }
 </script>
 
 <script type="module">
-  import {UnithreeState} from '../../dist/index.js';
-  import {RotatingCube} from '../../dist/examples/index.js';
+  import { UnithreeState } from 'unithree';
+  import { RotatingCube } from 'unithree-examples';
 
   document.body.append(Unithree.init());
 
