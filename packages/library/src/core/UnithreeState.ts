@@ -11,21 +11,13 @@ import { ExecutionType, UnithreePlugin } from './UnithreePlugin';
 
 type UnithreeObject = THREE.Object3D | Entity;
 
-class UnithreeScene extends THREE.Scene {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public add(...objects: THREE.Object3D[]): this {
-    console.error('Please use Unithree.instantiateObject instead.');
-    return this;
-  }
-}
-
 let _camera: THREE.Camera;
 let _renderer: THREE.WebGLRenderer;
 let animationLoopId: number;
 let isPaused = false;
 
-const scene: THREE.Scene = new UnithreeScene();
-const clock: THREE.Clock = new THREE.Clock();
+const scene = new THREE.Scene();
+const clock = new THREE.Clock();
 
 const entities: Map<string, Entity> = new Map<string, Entity>();
 const _plugins: UnithreePlugin[] = [];
@@ -39,7 +31,9 @@ const animationLoop = () => {
   // Handle start / destroy
   const toDelete: Entity[] = [];
   entities.forEach((entity) => {
-    entity.onStart(clock.getDelta(), isPaused);
+    if (entity.enabled && !entity.didStart) {
+      entity.onStart(clock.getDelta(), isPaused);
+    }
 
     if (entity.isDead) {
       toDelete.push(entity);
@@ -68,10 +62,14 @@ const animationLoop = () => {
 
   // Handle Update
   entities.forEach((entity) => {
-    entity.onUpdate(clock.getDelta(), isPaused);
+    if (entity.enabled && !entity.isDead) {
+      entity.onUpdate(clock.getDelta(), isPaused);
+    }
   });
   entities.forEach((entity) => {
-    entity.onLateUpdate(clock.getDelta(), isPaused);
+    if (entity.enabled && !entity.isDead) {
+      entity.onLateUpdate(clock.getDelta(), isPaused);
+    }
   });
 };
 
@@ -94,15 +92,16 @@ const addPlugins = (...plugins: UnithreePlugin[]): void => {
 
 /**
  * Initializes the Unithree system
- * @param {THREE.Camera} camera Optional camera replacement. Default: PerspectiveCamera
+ *
  * @param {THREE.WebGLRenderer} renderer Optional renderer/ Default WebGLRenderer
+ * @param {THREE.Camera} camera Optional camera replacement. Default: PerspectiveCamera
  * @returns {HTMLCanvasElement} The Canvas element for the renderer.
  */
-const initialize = (camera?: THREE.Camera, renderer?: THREE.WebGLRenderer): HTMLCanvasElement => {
-  _camera = camera ?? new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+const initialize = (renderer?: THREE.WebGLRenderer, camera?: THREE.Camera): HTMLCanvasElement => {
   _renderer = renderer ?? new THREE.WebGLRenderer();
+  _camera = camera ?? new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 
-  _renderer.setSize(window.innerWidth, window.innerHeight);
+  _renderer.autoClear = true;
   return _renderer.domElement;
 };
 

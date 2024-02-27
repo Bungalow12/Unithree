@@ -1,4 +1,4 @@
-import { Component, Entity } from '../../src';
+import { Component, Entity } from 'unithree';
 
 export class ColorChangeClickableComponent implements Component {
   public entity: Entity;

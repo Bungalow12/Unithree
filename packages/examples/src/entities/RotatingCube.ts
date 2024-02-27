@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { Entity, UnithreeState } from '../../src';
+import { Entity } from 'unithree';
 
 export class RotatingCube extends Entity {
   constructor() {
@@ -7,18 +7,17 @@ export class RotatingCube extends Entity {
 
     // Create our cube
     const geometry = new THREE.BoxGeometry(1, 1, 1);
-    const material = new THREE.MeshBasicMaterial({color: 0x00ff00});
+    const material = new THREE.MeshStandardMaterial({ color: 0x00ff00 });
     const cube = new THREE.Mesh(geometry, material);
-
-    UnithreeState.instantiateObject(cube, this);
+    this.add(cube);
   }
 
   public onUpdate(deltaTime: number, isPaused: boolean): this {
     super.onUpdate(deltaTime, isPaused);
 
     // Rotate the cube
-    this.rotation.x += deltaTime;
-    this.rotation.y += deltaTime;
+    this.rotation.x += deltaTime * 10;
+    this.rotation.y += deltaTime * 10;
 
     return this;
   }

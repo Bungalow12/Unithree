@@ -1,5 +1,5 @@
 import { Raycaster, Vector2 } from 'three';
-import { Entity, ExecutionType, UnithreePlugin, UnithreeState } from '../../src';
+import { Entity, ExecutionType, UnithreePlugin, UnithreeState } from 'unithree';
 import { ColorChangeClickableComponent } from '../components';
 
 /**

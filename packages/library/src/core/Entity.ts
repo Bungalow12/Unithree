@@ -10,8 +10,9 @@ export class Entity extends Object3D {
   protected isEntity = true;
   protected isEnabled;
   protected _components: Component[] = [];
-  protected didStart = false;
   protected _isDead = false;
+
+  public didStart = false;
 
   /**
    * Get the death state of the Entity
@@ -56,11 +57,7 @@ export class Entity extends Object3D {
    * @param {boolean} isPaused is the system paused
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public onStart(deltaTime: number, isPaused: boolean): void {
-    if (this.isEnabled && !this.didStart) {
-      this.didStart = true;
-    }
-  }
+  public onStart(deltaTime: number, isPaused: boolean): void {}
 
   /**
    * Event once per frame post render
@@ -68,9 +65,7 @@ export class Entity extends Object3D {
    * @param {boolean} isPaused is the system paused
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public onUpdate(deltaTime: number, isPaused: boolean): void {
-    if (this._isDead || !this.isEnabled) return;
-  }
+  public onUpdate(deltaTime: number, isPaused: boolean): void {}
 
   /**
    * Event called once per frame after the update event
@@ -78,9 +73,7 @@ export class Entity extends Object3D {
    * @param {boolean} isPaused is the system paused
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public onLateUpdate(deltaTime: number, isPaused: boolean): void {
-    if (this._isDead || !this.isEnabled) return;
-  }
+  public onLateUpdate(deltaTime: number, isPaused: boolean): void {}
 
   /**
    * Event called when the system processed the Entity death.
@@ -88,20 +81,7 @@ export class Entity extends Object3D {
    * @param {boolean} isPaused is the system paused
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public onDestroy(deltaTime: number, isPaused: boolean): void {
-    this._isDead = true;
-  }
-
-  /**
-   * Add override to discourage usage
-   * @param {Object3D} objects list of objects
-   * @returns {this} this object for chaining
-   */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public add(...objects: Object3D[]): this {
-    console.error('Please use Unithree.instantiateObject instead.');
-    return this;
-  }
+  public onDestroy(deltaTime: number, isPaused: boolean): void {}
 
   /**
    * Adds components to the Entity for extending behavior
