@@ -3,8 +3,10 @@ import { UnithreeState } from 'unithree';
 import { RotatingCube } from '../../entities';
 import * as THREE from 'three';
 import { OrbitControls } from 'three-stdlib';
+import { ClickablePlugin } from '../../plugins';
+import { ColorChangeClickableComponent } from '../../components';
 
-const BasicEntityExample = (): React.ReactElement => {
+const ClickComponentExample = (): React.ReactElement => {
   const sceneLoadedRef = useRef<boolean>(false);
 
   useEffect(() => {
@@ -16,11 +18,19 @@ const BasicEntityExample = (): React.ReactElement => {
     UnithreeState.initialize(renderer);
 
     if (!sceneLoadedRef.current) {
+      // Add the Clickable Plugin to the processor
+      UnithreeState.addPlugins(new ClickablePlugin());
+
       const ambientLight = new THREE.AmbientLight('white', Math.PI / 2);
       const spotLight = new THREE.SpotLight('white', Math.PI, 0, 0.15, 1, 0);
       spotLight.position.set(10, 10, 10);
       const pointLight = new THREE.PointLight('white', Math.PI, 0, 0);
       const cube = new RotatingCube();
+
+      // Add a Color Change Clickable Component to change the color on click
+      const clickableComponent = new ColorChangeClickableComponent(cube);
+      cube.addComponent(clickableComponent);
+
       sceneLoadedRef.current = true;
       UnithreeState.instantiateObject(cube);
       UnithreeState.instantiateObject(ambientLight);
@@ -44,4 +54,4 @@ const BasicEntityExample = (): React.ReactElement => {
   );
 };
 
-export default BasicEntityExample;
+export default ClickComponentExample;

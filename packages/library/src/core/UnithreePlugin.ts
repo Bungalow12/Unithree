@@ -12,5 +12,5 @@ export enum ExecutionType {
 export interface UnithreePlugin {
   executionType: ExecutionType;
 
-  run(): void;
+  run(deltaTime: number, isPaused: boolean): void;
 }

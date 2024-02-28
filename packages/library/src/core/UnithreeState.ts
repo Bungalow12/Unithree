@@ -57,7 +57,7 @@ const animationLoop = () => {
 
   // Run the plugins attached
   _plugins.forEach((plugin) => {
-    plugin.run();
+    plugin.run(clock.getDelta(), isPaused);
   });
 
   // Handle Update
@@ -81,7 +81,7 @@ const addPlugins = (...plugins: UnithreePlugin[]): void => {
   plugins.forEach((plugin) => {
     switch (plugin.executionType) {
       case ExecutionType.ONCE:
-        plugin.run();
+        plugin.run(clock.getDelta(), isPaused);
         break;
       case ExecutionType.ALWAYS:
       default:

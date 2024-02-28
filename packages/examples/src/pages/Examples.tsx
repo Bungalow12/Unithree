@@ -1,7 +1,18 @@
 import { JSX } from 'react';
 
 const Examples = (): JSX.Element => {
-  return <a href={'./basic_entity_example'}>Basic Entity Example</a>;
+  return (
+    <div>
+      <ul>
+        <li>
+          <a href={'./basic_entity_example'}>Basic Entity Example</a>
+        </li>
+        <li>
+          <a href={'./click_component_example'}>Clickable Component Example</a>
+        </li>
+      </ul>
+    </div>
+  );
 };
 
 export default Examples;
