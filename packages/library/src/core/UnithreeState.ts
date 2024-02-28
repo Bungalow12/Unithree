@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { Entity } from './Entity';
 import { ExecutionType, UnithreePlugin } from './UnithreePlugin';
+import { initializeInput, updateInput } from '../input';
 
 /**
  * Unithree engine root. Used for all the minimal requirements to run the system.
@@ -27,6 +28,9 @@ const _plugins: UnithreePlugin[] = [];
  */
 const animationLoop = () => {
   animationLoopId = requestAnimationFrame(animationLoop);
+
+  // Update the input system
+  updateInput(clock.getDelta());
 
   // Handle start / destroy
   const toDelete: Entity[] = [];
@@ -102,6 +106,7 @@ const initialize = (renderer?: THREE.WebGLRenderer, camera?: THREE.Camera): HTML
   _camera = camera ?? new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 
   _renderer.autoClear = true;
+  initializeInput(_renderer.domElement);
   return _renderer.domElement;
 };
 
@@ -142,6 +147,59 @@ const instantiateObject = (object: UnithreeObject, parent?: THREE.Object3D): Uni
 };
 
 /**
+ * Finds an Object by name.
+ * WARNING: This can be slow. It is not suggested to do this often rather maintain a reference.
+ * @param {string} name the name of the object to find
+ * @returns {THREE.Object3D | null} the object or null
+ */
+const findObjectByName = (name: string): THREE.Object3D | null => {
+  if (!name) return null; // Too many items use empty names
+  return scene.getObjectByName(name) ?? null;
+};
+
+/**
+ * Finds all Objects with a name.
+ * WARNING: This can be slow. It is not suggested to do this often rather maintain a reference.
+ * @param {string} name the name of the objects to find
+ * @returns {THREE.Object3D | null} the object list or null
+ */
+const findObjectsByName = (name: string): THREE.Object3D[] | null => {
+  if (!name) return null; // Too many items use empty names
+  return scene.getObjectsByProperty('name', name) ?? null;
+};
+
+/**
+ * Finds an entity in the known entities list.
+ * WARNING: This can be slow. This will look for an entity by name in a list of known entities. This should be faster than findObjectByName.
+ * @param {string} name the name of the entity
+ * @returns {Entity | null} the entity or null
+ */
+const findEntityByName = (name: string): Entity | null => {
+  for (const entity of entities.values()) {
+    if (entity.name === name) return entity;
+  }
+
+  return null;
+};
+
+/**
+ * Finds all entities in the known entities list.
+ * WARNING: This can be slow. This will look for an entity by name in a list of known entities. This should be faster than findObjectByName.
+ * @param {string} name the name of the entities
+ * @returns {Entity[] | null} the entity list or null
+ */
+const findEntitiesByName = (name: string): Entity[] | null => {
+  const matched: Entity[] = [];
+  for (const entity of entities.values()) {
+    if (entity.name === name) {
+      matched.push(entity);
+    }
+  }
+
+  return matched;
+};
+
+/**
  * The Unithree system state object. This provides access to the scene, renderer and active camera and processes the animation loop
  */
 export const UnithreeState = {
@@ -163,4 +221,8 @@ export const UnithreeState = {
   },
   getRenderer: (): THREE.WebGLRenderer => _renderer,
   getClock: (): THREE.Clock => clock,
+  findObjectByName,
+  findObjectsByName,
+  findEntityByName,
+  findEntitiesByName,
 };

@@ -8,10 +8,6 @@ by it.
 
 ## TODO:
 
-1. Add Orbit controls to basic demo
-2. Create click plugin demo
-3. Add Input system
-4. Add input demo
-5. Add input controls to click demo
-6. Figure out camera implementation (Entity or component)
-7. Add FindObjectByName to UnithreeState
+1. Add Input system
+2. Add input demo
+3. Figure out camera implementation (Entity or component)
