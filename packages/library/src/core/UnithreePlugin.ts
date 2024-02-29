@@ -2,8 +2,8 @@
  * The type of execution for a plugin
  */
 export enum ExecutionType {
-  ONCE,
-  ALWAYS,
+  Once,
+  Always,
 }
 
 /**

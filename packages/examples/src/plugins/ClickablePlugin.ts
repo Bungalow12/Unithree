@@ -6,7 +6,7 @@ import { ColorChangeClickableComponent } from '../components';
  * Sets up a click event to handle all components with the ColorChangeClickableComponent
  */
 export class ClickablePlugin implements UnithreePlugin {
-  public executionType = ExecutionType.ONCE;
+  public executionType = ExecutionType.Once;
 
   public run(): void {
     if (!UnithreeState.getRenderer() || !UnithreeState.getCamera()) {

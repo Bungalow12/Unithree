@@ -8,6 +8,5 @@ by it.
 
 ## TODO:
 
-1. Add Input system
-2. Add input demo
-3. Figure out camera implementation (Entity or component)
+* Add input demo
+* Figure out camera implementation (Entity or component)

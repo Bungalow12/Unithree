@@ -5,7 +5,7 @@ import { Component, Entity } from 'unithree';
 export class ColorChangeClickableComponent implements Component {
   private colors: THREE.ColorRepresentation[] = [0x00ff00, 0xff0000];
   private currentColorIndex = 0;
-  public entity: Entity | null = null;
+  public entity: Entity;
 
   constructor(entity: Entity) {
     this.entity = entity;

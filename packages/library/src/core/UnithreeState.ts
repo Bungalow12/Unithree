@@ -1,7 +1,6 @@
 import * as THREE from 'three';
 import { Entity } from './Entity';
 import { ExecutionType, UnithreePlugin } from './UnithreePlugin';
-import { initializeInput, updateInput } from '../input';
 
 /**
  * Unithree engine root. Used for all the minimal requirements to run the system.
@@ -28,9 +27,6 @@ const _plugins: UnithreePlugin[] = [];
  */
 const animationLoop = () => {
   animationLoopId = requestAnimationFrame(animationLoop);
-
-  // Update the input system
-  updateInput(clock.getDelta());
 
   // Handle start / destroy
   const toDelete: Entity[] = [];
@@ -84,14 +80,29 @@ const animationLoop = () => {
 const addPlugins = (...plugins: UnithreePlugin[]): void => {
   plugins.forEach((plugin) => {
     switch (plugin.executionType) {
-      case ExecutionType.ONCE:
+      case ExecutionType.Once:
         plugin.run(clock.getDelta(), isPaused);
         break;
-      case ExecutionType.ALWAYS:
+      case ExecutionType.Always:
       default:
         _plugins.push(plugin);
     }
   });
+};
+
+/**
+ * GEts a plugin class by the name of the type as a string
+ * @param {string} typeString class name as a string
+ * @returns {UnithreePlugin | null} The plugin cast to the specified type
+ */
+const getPluginByTypeName = <T extends UnithreePlugin>(typeString: string): T | null => {
+  for (const plugin of _plugins) {
+    if (plugin.constructor.name === typeString) {
+      return plugin as T;
+    }
+  }
+
+  return null;
 };
 
 /**
@@ -106,7 +117,6 @@ const initialize = (renderer?: THREE.WebGLRenderer, camera?: THREE.Camera): HTML
   _camera = camera ?? new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 
   _renderer.autoClear = true;
-  initializeInput(_renderer.domElement);
   return _renderer.domElement;
 };
 
@@ -204,6 +214,7 @@ const findEntitiesByName = (name: string): Entity[] | null => {
  */
 export const UnithreeState = {
   addPlugins,
+  getPluginByTypeName,
   initialize,
   start,
   stop,
