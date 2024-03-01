@@ -98,8 +98,20 @@ export class Input implements UnithreePlugin {
    * @param {string} keyName
    * @returns {boolean} True if pressed this frame
    */
-  public getKeyDown = (keyName: string): boolean => {
+  public getKeyPressed = (keyName: string): boolean => {
     return this.keyStates.has(keyName) && this.keyStates.get(keyName) === ButtonState.Pressed;
+  };
+
+  /**
+   * Returns true if the key identified by name is being held.
+   * @param {string} keyName
+   * @returns {boolean} True if held
+   */
+  public getKeyDown = (keyName: string): boolean => {
+    return (
+      this.keyStates.has(keyName) &&
+      (this.keyStates.get(keyName) === ButtonState.Pressed || this.keyStates.get(keyName) === ButtonState.Held)
+    );
   };
 
   /**
@@ -125,8 +137,21 @@ export class Input implements UnithreePlugin {
    * @param {PointerButton} button
    * @returns {boolean} True if pressed this frame
    */
-  public getMouseButtonDown = (button: PointerButton): boolean => {
+  public getMouseButtonPressed = (button: PointerButton): boolean => {
     return this.pointerButtonStates.has(button) && this.pointerButtonStates.get(button) === ButtonState.Pressed;
+  };
+
+  /**
+   * Returns true if the given mouse button is being held.
+   * @param {PointerButton} button
+   * @returns {boolean} True if held
+   */
+  public getMouseButtonDown = (button: PointerButton): boolean => {
+    return (
+      this.pointerButtonStates.has(button) &&
+      (this.pointerButtonStates.get(button) === ButtonState.Pressed ||
+        this.pointerButtonStates.get(button) === ButtonState.Held)
+    );
   };
 
   /**

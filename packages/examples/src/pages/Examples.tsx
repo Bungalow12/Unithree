@@ -10,6 +10,9 @@ const Examples = (): JSX.Element => {
         <li>
           <a href={'./click_component_example'}>Clickable Component Example</a>
         </li>
+        <li>
+          <a href={'./input_plugin_example'}>Input Plugin Example</a>
+        </li>
       </ul>
     </div>
   );

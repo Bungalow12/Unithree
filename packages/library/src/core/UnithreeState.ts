@@ -33,6 +33,7 @@ const animationLoop = () => {
   entities.forEach((entity) => {
     if (entity.enabled && !entity.didStart) {
       entity.onStart(clock.getDelta(), isPaused);
+      entity.didStart = true;
     }
 
     if (entity.isDead) {
