@@ -40,6 +40,7 @@ const InputPluginExample = (): React.ReactElement => {
 
   return (
     <div>
+      {/* Important to note that you need a tab index and autofocus enabled to accept keyboard input */}
       <canvas id={'main-canvas'} tabIndex={0} autoFocus={true} />
     </div>
   );
