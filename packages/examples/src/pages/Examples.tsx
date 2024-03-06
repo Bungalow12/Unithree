@@ -13,6 +13,9 @@ const Examples = (): JSX.Element => {
         <li>
           <a href={'./input_plugin_example'}>Input Plugin Example</a>
         </li>
+        <li>
+          <a href={'./orthographic_example'}>Orthographic Example</a>
+        </li>
       </ul>
     </div>
   );

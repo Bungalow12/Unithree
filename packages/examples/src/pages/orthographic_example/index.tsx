@@ -1,9 +1,9 @@
 import React, { useEffect, useRef } from 'react';
 import { Input, UnithreeState } from 'unithree';
 import * as THREE from 'three';
-import { CharacterCapsule } from '../../entities';
+import { InputSphere } from '../../entities';
 
-const InputPluginExample = (): React.ReactElement => {
+const OrthographicExample = (): React.ReactElement => {
   const sceneLoadedRef = useRef<boolean>(false);
 
   useEffect(() => {
@@ -13,10 +13,10 @@ const InputPluginExample = (): React.ReactElement => {
     const renderer = new THREE.WebGLRenderer({ canvas });
     const width = window.innerWidth - 10;
     const height = window.innerHeight - 20;
+    const camera = new THREE.OrthographicCamera(width / -5, width / 5, height / 5, height / -5, 1, 1000);
     renderer.setSize(width, height);
-    UnithreeState.initialize(renderer);
-    const camera = UnithreeState.getCamera();
-    camera.position.set(0, 10, 30);
+    camera.position.z = 16;
+    UnithreeState.initialize(renderer, camera);
 
     if (!sceneLoadedRef.current) {
       // Create an instance of the Input Plugin
@@ -27,16 +27,9 @@ const InputPluginExample = (): React.ReactElement => {
       const spotLight = new THREE.SpotLight('white', Math.PI, 0, 0.15, 1, 0);
       spotLight.position.set(10, 10, 10);
       const pointLight = new THREE.PointLight('white', Math.PI, 0, 0);
-      const character = new CharacterCapsule();
-      // const floorGeometry = new THREE.PlaneGeometry(1000, 1000);
-      // const floorMaterial = new THREE.MeshStandardMaterial({ color: 0x004400 });
-      // const floor = new THREE.Mesh(floorGeometry, floorMaterial);
-      // floor.rotation.x = -Math.PI / 2;
-      // floor.receiveShadow = true;
-      const floor = new THREE.GridHelper(1000, 500, 0x0000ff, 0x004400);
+      const sphere = new InputSphere();
       sceneLoadedRef.current = true;
-      UnithreeState.instantiateObject(floor);
-      UnithreeState.instantiateObject(character);
+      UnithreeState.instantiateObject(sphere);
       UnithreeState.instantiateObject(ambientLight);
       UnithreeState.instantiateObject(spotLight);
       UnithreeState.instantiateObject(pointLight);
@@ -53,4 +46,4 @@ const InputPluginExample = (): React.ReactElement => {
   );
 };
 
-export default InputPluginExample;
+export default OrthographicExample;

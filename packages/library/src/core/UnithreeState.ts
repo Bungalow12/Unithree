@@ -11,13 +11,14 @@ import { ExecutionType, UnithreePlugin } from './UnithreePlugin';
 
 type UnithreeObject = THREE.Object3D | Entity;
 
+const scene = new THREE.Scene();
+const clock = new THREE.Clock();
+
 let _camera: THREE.Camera;
 let _renderer: THREE.WebGLRenderer;
 let animationLoopId: number;
 let isPaused = false;
-
-const scene = new THREE.Scene();
-const clock = new THREE.Clock();
+let deltaTime = clock.getDelta();
 
 const entities: Map<string, Entity> = new Map<string, Entity>();
 const _plugins: UnithreePlugin[] = [];
@@ -27,12 +28,13 @@ const _plugins: UnithreePlugin[] = [];
  */
 const animationLoop = () => {
   animationLoopId = requestAnimationFrame(animationLoop);
+  deltaTime = clock.getDelta();
 
   // Handle start / destroy
   const toDelete: Entity[] = [];
   entities.forEach((entity) => {
     if (entity.enabled && !entity.didStart) {
-      entity.onStart(clock.getDelta(), isPaused);
+      entity.onStart(deltaTime, isPaused);
       entity.didStart = true;
     }
 
@@ -58,18 +60,18 @@ const animationLoop = () => {
 
   // Run the plugins attached
   _plugins.forEach((plugin) => {
-    plugin.run(clock.getDelta(), isPaused);
+    plugin.run(deltaTime, isPaused);
   });
 
   // Handle Update
   entities.forEach((entity) => {
     if (entity.enabled && !entity.isDead) {
-      entity.onUpdate(clock.getDelta(), isPaused);
+      entity.onUpdate(deltaTime, isPaused);
     }
   });
   entities.forEach((entity) => {
     if (entity.enabled && !entity.isDead) {
-      entity.onLateUpdate(clock.getDelta(), isPaused);
+      entity.onLateUpdate(deltaTime, isPaused);
     }
   });
 };
@@ -82,7 +84,7 @@ const addPlugins = (...plugins: UnithreePlugin[]): void => {
   plugins.forEach((plugin) => {
     switch (plugin.executionType) {
       case ExecutionType.Once:
-        plugin.run(clock.getDelta(), isPaused);
+        plugin.run(deltaTime, isPaused);
         break;
       case ExecutionType.Always:
       default:
