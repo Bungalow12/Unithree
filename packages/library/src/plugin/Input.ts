@@ -1,4 +1,4 @@
-import * as THREE from 'three';
+import { Vector2 } from 'three';
 import { ExecutionType, UnithreePlugin } from '../core';
 
 /**
@@ -27,13 +27,13 @@ export enum InputType {
  * Class that processes user plugin and allows for easy reading of the states and values
  */
 export class Input implements UnithreePlugin {
-  protected previousPointerCoordinates: THREE.Vector2 | null = null;
-  protected _pointerCoordinates: THREE.Vector2 = new THREE.Vector2();
+  protected previousPointerCoordinates: Vector2 | null = null;
+  protected _pointerCoordinates: Vector2 = new Vector2();
 
   protected keyStates = new Map<string, ButtonState>();
   protected pointerButtonStates = new Map<PointerButton, ButtonState>();
 
-  protected _mouseScrollDelta = new THREE.Vector2();
+  protected _mouseScrollDelta = new Vector2();
   protected _mouseScrollDeltaMode = 0;
 
   public executionType = ExecutionType.Always;
@@ -50,17 +50,17 @@ export class Input implements UnithreePlugin {
 
   /**
    * Gets the pointer coordinates in reference to the window
-   * @returns {THREE.Vector2}
+   * @returns {Vector2}
    */
-  public get pointerCoordinates(): THREE.Vector2 {
+  public get pointerCoordinates(): Vector2 {
     return this._pointerCoordinates.clone();
   }
 
   /**
    * Gets the mouse scroll delta since last frame
-   * @returns {THREE.Vector2}
+   * @returns {Vector2}
    */
-  public get mouseScrollDelta(): THREE.Vector2 {
+  public get mouseScrollDelta(): Vector2 {
     return this._mouseScrollDelta.clone();
   }
 
@@ -70,11 +70,11 @@ export class Input implements UnithreePlugin {
 
   /**
    * Gets the delta between the pointer position this frame and previous frame.
-   * @param {THREE.Vector2} out optional out vector
-   * @returns {THREE.Vector2} Vector2 where the values are the delta for pointer coordinates for that axis
+   * @param {Vector2} out optional out vector
+   * @returns {Vector2} Vector2 where the values are the delta for pointer coordinates for that axis
    */
-  public getPointerDelta = (out?: THREE.Vector2): THREE.Vector2 => {
-    out = out ?? new THREE.Vector2();
+  public getPointerDelta = (out?: Vector2): Vector2 => {
+    out = out ?? new Vector2();
 
     const previousPosition = this.previousPointerCoordinates
       ? this.previousPointerCoordinates
@@ -184,7 +184,7 @@ export class Input implements UnithreePlugin {
   };
 
   private onPointerMove = (event: PointerEvent): void => {
-    const pointerPosition = new THREE.Vector2(event.pageX, event.pageY);
+    const pointerPosition = new Vector2(event.pageX, event.pageY);
 
     if (!this.previousPointerCoordinates) {
       this.previousPointerCoordinates = pointerPosition.clone();

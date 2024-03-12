@@ -14,7 +14,7 @@ const Examples = (): JSX.Element => {
           <a href={'./input_plugin_example'}>Input Plugin Example</a>
         </li>
         <li>
-          <a href={'./orthographic_example'}>Orthographic Example</a>
+          <a href={'./custom_camera_example'}>Custom Camera Controller Example</a>
         </li>
       </ul>
     </div>

@@ -1,25 +1,33 @@
-import * as THREE from 'three';
+import {
+  Box3,
+  CapsuleGeometry,
+  ColorRepresentation,
+  Mesh,
+  MeshStandardMaterial,
+  PerspectiveCamera,
+  Vector3,
+} from 'three';
 import { Entity, Input, UnithreeState } from 'unithree';
 import { OrbitControls } from 'three-stdlib';
 
 export class CharacterCapsule extends Entity {
-  private static FORWARD = new THREE.Vector3(0, 0, -1);
-  private static BACK = new THREE.Vector3(0, 0, 1);
-  private static LEFT = new THREE.Vector3(-1, 0, 0);
-  private static RIGHT = new THREE.Vector3(1, 0, 0);
+  private static FORWARD = new Vector3(0, 0, -1);
+  private static BACK = new Vector3(0, 0, 1);
+  private static LEFT = new Vector3(-1, 0, 0);
+  private static RIGHT = new Vector3(1, 0, 0);
   private static SPEED = 15;
 
   private input: Input | null = null;
   private controls: OrbitControls | null = null;
 
-  constructor(color: THREE.ColorRepresentation = 0x007777) {
+  constructor(color: ColorRepresentation = 0x007777) {
     super();
 
     // Create our cube
-    const geometry = new THREE.CapsuleGeometry(3, 9, 16, 16);
-    const material = new THREE.MeshStandardMaterial({ color });
-    const capsule = new THREE.Mesh(geometry, material);
-    const capsuleBounds = new THREE.Box3().setFromObject(capsule);
+    const geometry = new CapsuleGeometry(3, 9, 16, 16);
+    const material = new MeshStandardMaterial({ color });
+    const capsule = new Mesh(geometry, material);
+    const capsuleBounds = new Box3().setFromObject(capsule);
     capsule.position.y = capsuleBounds.max.y / 2 + 4;
     this.add(capsule);
   }
@@ -30,7 +38,7 @@ export class CharacterCapsule extends Entity {
     }
 
     this.controls = new OrbitControls(
-      UnithreeState.getCamera() as THREE.PerspectiveCamera,
+      UnithreeState.getCamera() as PerspectiveCamera,
       UnithreeState.getRenderer().domElement,
     );
 
@@ -59,7 +67,7 @@ export class CharacterCapsule extends Entity {
       this.createOrbitControls();
     }
 
-    const camera = this.controls?.object as THREE.PerspectiveCamera;
+    const camera = this.controls?.object as PerspectiveCamera;
     this.rotation.y = camera.rotation.y;
 
     if (this.input?.getKeyDown('ArrowUp') || this.input?.getKeyDown('w')) {

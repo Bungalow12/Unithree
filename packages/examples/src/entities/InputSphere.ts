@@ -1,16 +1,16 @@
-import * as THREE from 'three';
+import { ColorRepresentation, Mesh, MeshStandardMaterial, SphereGeometry } from 'three';
 import { Entity, Input, UnithreeState } from 'unithree';
 
 export class InputSphere extends Entity {
   private input: Input | null = null;
 
-  constructor(color: THREE.ColorRepresentation = 0xffffff) {
+  constructor(color: ColorRepresentation = 0xffffff) {
     super();
 
     // Create our cube
-    const geometry = new THREE.SphereGeometry(15, 32, 16);
-    const material = new THREE.MeshStandardMaterial({ color });
-    const sphere = new THREE.Mesh(geometry, material);
+    const geometry = new SphereGeometry(15, 32, 16);
+    const material = new MeshStandardMaterial({ color });
+    const sphere = new Mesh(geometry, material);
     this.add(sphere);
   }
 

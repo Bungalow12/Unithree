@@ -8,5 +8,4 @@ by it.
 
 ## TODO:
 
-* Add input demo
-* Figure out camera implementation (Entity or component)
+* Build a custom Third Person Camera?

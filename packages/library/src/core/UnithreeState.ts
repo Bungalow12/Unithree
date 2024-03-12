@@ -1,6 +1,6 @@
-import * as THREE from 'three';
 import { Entity } from './Entity';
 import { ExecutionType, UnithreePlugin } from './UnithreePlugin';
+import { Camera, Clock, Object3D, PerspectiveCamera, Scene, WebGLRenderer } from 'three';
 
 /**
  * Unithree engine root. Used for all the minimal requirements to run the system.
@@ -9,19 +9,19 @@ import { ExecutionType, UnithreePlugin } from './UnithreePlugin';
 // TODO: Add a SceneLoader that takes the custom object types so that the loader would know how to process them
 //  Needs a file format.
 
-type UnithreeObject = THREE.Object3D | Entity;
+type UnithreeObject = Object3D | Entity;
 
-const scene = new THREE.Scene();
-const clock = new THREE.Clock();
+const scene = new Scene();
+const clock = new Clock();
 
-let _camera: THREE.Camera;
-let _renderer: THREE.WebGLRenderer;
+let _camera: Camera;
+let _renderer: WebGLRenderer;
 let animationLoopId: number;
 let isPaused = false;
 let deltaTime = clock.getDelta();
 
 const entities: Map<string, Entity> = new Map<string, Entity>();
-const _plugins: UnithreePlugin[] = [];
+const _plugins: Map<string, UnithreePlugin> = new Map<string, UnithreePlugin>();
 
 /**
  * The main animation loop. This will process plugins and Entity children to provide callbacks for each entity
@@ -86,38 +86,33 @@ const addPlugins = (...plugins: UnithreePlugin[]): void => {
       case ExecutionType.Once:
         plugin.run(deltaTime, isPaused);
         break;
+
       case ExecutionType.Always:
       default:
-        _plugins.push(plugin);
+        _plugins.set(plugin.constructor.name, plugin);
     }
   });
 };
 
 /**
  * GEts a plugin class by the name of the type as a string
- * @param {string} typeString class name as a string
+ * @param {string} typeName class name as a string
  * @returns {UnithreePlugin | null} The plugin cast to the specified type
  */
-const getPluginByTypeName = <T extends UnithreePlugin>(typeString: string): T | null => {
-  for (const plugin of _plugins) {
-    if (plugin.constructor.name === typeString) {
-      return plugin as T;
-    }
-  }
-
-  return null;
+const getPluginByTypeName = <T extends UnithreePlugin>(typeName: string): T | null => {
+  return (_plugins.get(typeName) as T) ?? null;
 };
 
 /**
  * Initializes the Unithree system
  *
- * @param {THREE.WebGLRenderer} renderer Optional renderer/ Default WebGLRenderer
- * @param {THREE.Camera} camera Optional camera replacement. Default: PerspectiveCamera
+ * @param {WebGLRenderer} renderer Optional renderer/ Default WebGLRenderer
+ * @param {Camera} camera Optional camera replacement. Default: PerspectiveCamera
  * @returns {HTMLCanvasElement} The Canvas element for the renderer.
  */
-const initialize = (renderer?: THREE.WebGLRenderer, camera?: THREE.Camera): HTMLCanvasElement => {
-  _renderer = renderer ?? new THREE.WebGLRenderer();
-  _camera = camera ?? new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+const initialize = (renderer?: WebGLRenderer, camera?: Camera): HTMLCanvasElement => {
+  _renderer = renderer ?? new WebGLRenderer();
+  _camera = camera ?? new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 
   _renderer.autoClear = true;
   return _renderer.domElement;
@@ -140,10 +135,10 @@ const stop = (): void => {
 /**
  * Instantiates a new object and adds it to the scene
  * @param {UnithreeObject} object the new object or Entity to add
- * @param {THREE.Object3D} parent the optional parent object
+ * @param {Object3D} parent the optional parent object
  * @returns {UnithreeObject} the object that has been added
  */
-const instantiateObject = (object: UnithreeObject, parent?: THREE.Object3D): UnithreeObject => {
+const instantiateObject = (object: UnithreeObject, parent?: Object3D): UnithreeObject => {
   parent = parent ?? scene;
   if (object instanceof Entity) {
     entities.set(object.uuid, object);
@@ -163,9 +158,9 @@ const instantiateObject = (object: UnithreeObject, parent?: THREE.Object3D): Uni
  * Finds an Object by name.
  * WARNING: This can be slow. It is not suggested to do this often rather maintain a reference.
  * @param {string} name the name of the object to find
- * @returns {THREE.Object3D | null} the object or null
+ * @returns {Object3D | null} the object or null
  */
-const findObjectByName = (name: string): THREE.Object3D | null => {
+const findObjectByName = (name: string): Object3D | null => {
   if (!name) return null; // Too many items use empty names
   return scene.getObjectByName(name) ?? null;
 };
@@ -174,9 +169,9 @@ const findObjectByName = (name: string): THREE.Object3D | null => {
  * Finds all Objects with a name.
  * WARNING: This can be slow. It is not suggested to do this often rather maintain a reference.
  * @param {string} name the name of the objects to find
- * @returns {THREE.Object3D | null} the object list or null
+ * @returns {Object3D | null} the object list or null
  */
-const findObjectsByName = (name: string): THREE.Object3D[] | null => {
+const findObjectsByName = (name: string): Object3D[] | null => {
   if (!name) return null; // Too many items use empty names
   return scene.getObjectsByProperty('name', name) ?? null;
 };
@@ -228,13 +223,13 @@ export const UnithreeState = {
   set isPaused(value: boolean) {
     isPaused = value;
   },
-  getScene: (): THREE.Scene => scene,
-  getCamera: (): THREE.Camera => _camera,
-  setCamera: (camera: THREE.Camera): void => {
+  getScene: (): Scene => scene,
+  getCamera: (): Camera => _camera,
+  setCamera: (camera: Camera): void => {
     _camera = camera;
   },
-  getRenderer: (): THREE.WebGLRenderer => _renderer,
-  getClock: (): THREE.Clock => clock,
+  getRenderer: (): WebGLRenderer => _renderer,
+  getClock: (): Clock => clock,
   findObjectByName,
   findObjectsByName,
   findEntityByName,

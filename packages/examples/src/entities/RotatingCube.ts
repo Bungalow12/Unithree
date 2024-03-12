@@ -1,14 +1,14 @@
-import * as THREE from 'three';
 import { Entity } from 'unithree';
+import { BoxGeometry, ColorRepresentation, Mesh, MeshStandardMaterial } from 'three';
 
 export class RotatingCube extends Entity {
-  constructor(color: THREE.ColorRepresentation = 0x00ff00) {
+  constructor(color: ColorRepresentation = 0x00ff00) {
     super();
 
     // Create our cube
-    const geometry = new THREE.BoxGeometry(1, 1, 1);
-    const material = new THREE.MeshStandardMaterial({ color });
-    const cube = new THREE.Mesh(geometry, material);
+    const geometry = new BoxGeometry(1, 1, 1);
+    const material = new MeshStandardMaterial({ color });
+    const cube = new Mesh(geometry, material);
     this.add(cube);
   }
 
