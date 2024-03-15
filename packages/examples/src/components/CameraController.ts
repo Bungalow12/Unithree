@@ -1,6 +1,14 @@
 import { Camera } from 'three';
-import { Component } from 'unithree';
+import Component from 'unithree/dist/core/Component';
+import Entity from 'unithree/dist/core/Entity';
 
-export interface CameraController<T extends Camera> extends Component {
-  camera: T;
+export class CameraController<T extends Camera> implements Component {
+  public entity: Entity | null = null;
+  public camera: T;
+
+  constructor(camera: T) {
+    this.camera = camera;
+  }
+
+  public onUpdate(deltaTime: number, isPaused: boolean): void {}
 }

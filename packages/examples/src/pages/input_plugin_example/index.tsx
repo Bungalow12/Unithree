@@ -1,11 +1,10 @@
-import React, { useEffect, useRef } from 'react';
-import { Input, UnithreeState } from 'unithree';
+import React, { useEffect } from 'react';
 import * as THREE from 'three';
 import { InputSphere } from '../../entities';
+import Unithree from 'unithree';
+import Input from 'unithree/dist/plugin/Input';
 
 const InputPluginExample = (): React.ReactElement => {
-  const sceneLoadedRef = useRef<boolean>(false);
-
   useEffect(() => {
     const canvas = document.getElementById('main-canvas') as HTMLCanvasElement;
     if (!canvas) return;
@@ -16,26 +15,23 @@ const InputPluginExample = (): React.ReactElement => {
     const camera = new THREE.OrthographicCamera(width / -5, width / 5, height / 5, height / -5, 1, 1000);
     renderer.setSize(width, height);
     camera.position.z = 16;
-    UnithreeState.initialize(renderer, camera);
+    Unithree.initialize(renderer, camera);
 
-    if (!sceneLoadedRef.current) {
-      // Create an instance of the Input Plugin
-      const input = new Input(canvas);
-      UnithreeState.addPlugins(input);
+    // Create an instance of the Input Plugin
+    const input = new Input(canvas);
+    Unithree.addPlugins(input);
 
-      const ambientLight = new THREE.AmbientLight('white', Math.PI / 2);
-      const spotLight = new THREE.SpotLight('white', Math.PI, 0, 0.15, 1, 0);
-      spotLight.position.set(10, 10, 10);
-      const pointLight = new THREE.PointLight('white', Math.PI, 0, 0);
-      const sphere = new InputSphere();
-      sceneLoadedRef.current = true;
-      UnithreeState.instantiateObject(sphere);
-      UnithreeState.instantiateObject(ambientLight);
-      UnithreeState.instantiateObject(spotLight);
-      UnithreeState.instantiateObject(pointLight);
-    }
+    const ambientLight = new THREE.AmbientLight('white', Math.PI / 2);
+    const spotLight = new THREE.SpotLight('white', Math.PI, 0, 0.15, 1, 0);
+    spotLight.position.set(10, 10, 10);
+    const pointLight = new THREE.PointLight('white', Math.PI, 0, 0);
+    const sphere = new InputSphere();
+    Unithree.instantiateObject(sphere);
+    Unithree.instantiateObject(ambientLight);
+    Unithree.instantiateObject(spotLight);
+    Unithree.instantiateObject(pointLight);
 
-    UnithreeState.start();
+    Unithree.start();
   }, []);
 
   return (

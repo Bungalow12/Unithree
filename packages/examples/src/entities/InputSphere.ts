@@ -1,5 +1,7 @@
 import { ColorRepresentation, Mesh, MeshStandardMaterial, SphereGeometry } from 'three';
-import { Entity, Input, UnithreeState } from 'unithree';
+import Unithree from 'unithree';
+import Entity from 'unithree/dist/core/Entity';
+import Input from 'unithree/dist/plugin/Input';
 
 export class InputSphere extends Entity {
   private input: Input | null = null;
@@ -16,7 +18,7 @@ export class InputSphere extends Entity {
 
   public onStart(deltaTime: number, isPaused: boolean): this {
     super.onStart(deltaTime, isPaused);
-    this.input = UnithreeState.getPluginByTypeName<Input>('Input');
+    this.input = Unithree.getPluginByTypeName<Input>('Input');
     return this;
   }
 

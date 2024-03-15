@@ -1,12 +1,12 @@
 import { Object3D } from 'three';
 
-import { Component } from './Component';
+import Component from './Component';
 
 /**
  * The main Unithree object able to contain components and has event functions called by the system.
  * This is an Object3D at its base with the updated processing.
  */
-export class Entity extends Object3D {
+class Entity extends Object3D {
   protected isEntity = true;
   protected isEnabled;
   protected _components: Component[] = [];
@@ -100,3 +100,5 @@ export class Entity extends Object3D {
     this._isDead = true;
   };
 }
+
+export default Entity;

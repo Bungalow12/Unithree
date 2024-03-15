@@ -1,5 +1,5 @@
-import { Entity } from 'unithree';
 import { BoxGeometry, ColorRepresentation, Mesh, MeshStandardMaterial } from 'three';
+import Entity from 'unithree/dist/core/Entity';
 
 export class RotatingCube extends Entity {
   constructor(color: ColorRepresentation = 0x00ff00) {
@@ -16,8 +16,8 @@ export class RotatingCube extends Entity {
     super.onUpdate(deltaTime, isPaused);
 
     // Rotate the cube
-    this.rotation.x += deltaTime * 10;
-    this.rotation.y += deltaTime * 10;
+    this.rotation.x += deltaTime * 2;
+    this.rotation.y += deltaTime * 2;
 
     return this;
   }

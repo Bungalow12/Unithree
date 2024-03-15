@@ -7,8 +7,10 @@ import {
   PerspectiveCamera,
   Vector3,
 } from 'three';
-import { Entity, Input, UnithreeState } from 'unithree';
-import { OrbitControls } from 'three-stdlib';
+import Unithree from 'unithree';
+import Entity from 'unithree/dist/core/Entity';
+import Input from 'unithree/dist/plugin/Input';
+import { ThirdPersonCameraController } from '../components';
 
 export class CharacterCapsule extends Entity {
   private static FORWARD = new Vector3(0, 0, -1);
@@ -18,9 +20,10 @@ export class CharacterCapsule extends Entity {
   private static SPEED = 15;
 
   private input: Input | null = null;
-  private controls: OrbitControls | null = null;
+  // private controls: OrbitControls | null = null;
+  private readonly controls: ThirdPersonCameraController;
 
-  constructor(color: ColorRepresentation = 0x007777) {
+  constructor(input: Input, color: ColorRepresentation = 0x007777) {
     super();
 
     // Create our cube
@@ -30,6 +33,11 @@ export class CharacterCapsule extends Entity {
     const capsuleBounds = new Box3().setFromObject(capsule);
     capsule.position.y = capsuleBounds.max.y / 2 + 4;
     this.add(capsule);
+
+    const camera = Unithree.getCamera() as PerspectiveCamera;
+    const domElement = Unithree.getRenderer().domElement;
+    this.controls = new ThirdPersonCameraController(camera, domElement, input);
+    this.addComponent(this.controls);
   }
 
   private createOrbitControls = () => {
@@ -37,13 +45,13 @@ export class CharacterCapsule extends Entity {
       this.controls.dispose();
     }
 
-    this.controls = new OrbitControls(
-      UnithreeState.getCamera() as PerspectiveCamera,
-      UnithreeState.getRenderer().domElement,
-    );
+    // this.controls = new OrbitControls(Unithree.getCamera() as PerspectiveCamera, Unithree.getRenderer().domElement);
+    const camera = Unithree.getCamera() as PerspectiveCamera;
+    const domElement = Unithree.getRenderer().domElement;
+    this.controls.initialize(camera, domElement);
 
     this.controls.target = this.position;
-    this.controls.keys = { LEFT: '', RIGHT: '', UP: '', BOTTOM: '' };
+    this.controls.keys = { LEFT: 'ArrowLeft', RIGHT: 'ArrowRight', UP: 'ArrowUp', DOWN: 'ArrowDown' };
     this.controls.minDistance = 20;
     this.controls.maxDistance = 40;
     this.controls.maxPolarAngle = Math.PI / 2;
@@ -51,7 +59,7 @@ export class CharacterCapsule extends Entity {
 
   public onStart(deltaTime: number, isPaused: boolean): this {
     super.onStart(deltaTime, isPaused);
-    this.input = UnithreeState.getPluginByTypeName<Input>('Input');
+    this.input = Unithree.getPluginByTypeName<Input>('Input');
     this.createOrbitControls();
     return this;
   }
@@ -59,24 +67,16 @@ export class CharacterCapsule extends Entity {
   public onUpdate(deltaTime: number, isPaused: boolean): this {
     super.onUpdate(deltaTime, isPaused);
 
-    // TODO: Bug: Necessary due to a second render in React
-    if (
-      this.controls?.object !== UnithreeState.getCamera() ||
-      this.controls?.domElement !== UnithreeState.getRenderer().domElement
-    ) {
-      this.createOrbitControls();
-    }
-
-    const camera = this.controls?.object as PerspectiveCamera;
+    const camera = this.controls.camera as PerspectiveCamera;
     this.rotation.y = camera.rotation.y;
 
-    if (this.input?.getKeyDown('ArrowUp') || this.input?.getKeyDown('w')) {
+    if (this.input?.getKeyDown('w')) {
       const pLocal = CharacterCapsule.FORWARD.clone();
       const pWorld = pLocal.applyMatrix4(camera.matrixWorld);
       const direction = pWorld.sub(camera.position).normalize();
       direction.y = 0;
       this.position.addScaledVector(direction, CharacterCapsule.SPEED * deltaTime);
-    } else if (this.input?.getKeyDown('ArrowDown') || this.input?.getKeyDown('s')) {
+    } else if (this.input?.getKeyDown('s')) {
       const pLocal = CharacterCapsule.BACK.clone();
       const pWorld = pLocal.applyMatrix4(camera.matrixWorld);
       const direction = pWorld.sub(camera.position).normalize();
@@ -84,13 +84,13 @@ export class CharacterCapsule extends Entity {
       this.position.addScaledVector(direction, CharacterCapsule.SPEED * deltaTime);
     }
 
-    if (this.input?.getKeyDown('ArrowLeft') || this.input?.getKeyDown('a')) {
+    if (this.input?.getKeyDown('a')) {
       const pLocal = CharacterCapsule.LEFT.clone();
       const pWorld = pLocal.applyMatrix4(camera.matrixWorld);
       const direction = pWorld.sub(camera.position).normalize();
       direction.y = 0;
       this.position.addScaledVector(direction, CharacterCapsule.SPEED * deltaTime);
-    } else if (this.input?.getKeyDown('ArrowRight') || this.input?.getKeyDown('d')) {
+    } else if (this.input?.getKeyDown('d')) {
       const pLocal = CharacterCapsule.RIGHT.clone();
       const pWorld = pLocal.applyMatrix4(camera.matrixWorld);
       const direction = pWorld.sub(camera.position).normalize();
@@ -98,10 +98,7 @@ export class CharacterCapsule extends Entity {
       this.position.addScaledVector(direction, CharacterCapsule.SPEED * deltaTime);
     }
 
-    if (this.controls) {
-      this.controls.target = this.position;
-      this.controls.update();
-    }
+    this.controls.target = this.position;
 
     return this;
   }

@@ -1,6 +1,6 @@
-import { Entity } from 'unithree';
 import { Matrix4, MOUSE, PerspectiveCamera, Plane, Quaternion, Ray, Spherical, TOUCH, Vector2, Vector3 } from 'three';
 import { CameraController } from './CameraController';
+import Input from 'unithree/dist/plugin/Input';
 
 // Reused for optimization
 const _ray = new Ray();
@@ -27,6 +27,13 @@ export enum ControlState {
   TOUCH_DOLLY_ROTATE,
 }
 
+export interface CameraControllerKeys {
+  LEFT: string;
+  RIGHT: string;
+  UP: string;
+  DOWN: string;
+}
+
 // TODO: Slim down and add custom implementation
 //   Try to switch all input to Input Plugin
 //   Narrow down the calculation portion and minimize. Smooth target transition not necessary
@@ -35,14 +42,49 @@ export enum ControlState {
  * Third Person Camera Controls built as a component.
  * The implementation is based on https://github.com/pmndrs/three-stdlib/blob/main/src/controls/OrbitControls.ts
  */
-export class ThirdPersonCameraController implements CameraController<PerspectiveCamera> {
-  public entity: Entity | null = null;
-
-  public camera: PerspectiveCamera;
-  public domElement: HTMLElement;
+export class ThirdPersonCameraController extends CameraController<PerspectiveCamera> {
+  private input: Input;
 
   // When false this control is disabled
-  public enabled = true;
+  private _enabled = true;
+
+  // Reset internals
+  protected target0: Vector3;
+  protected position0: Vector3;
+  protected zoom0: number;
+
+  // Internals
+  protected state = ControlState.NONE;
+
+  protected EPS = 0.000001;
+
+  // current position in spherical coordinates
+  protected spherical = new Spherical();
+  protected sphericalDelta = new Spherical();
+
+  protected scale = 1;
+  protected panOffset = new Vector3();
+
+  protected rotateStart = new Vector2();
+  protected rotateEnd = new Vector2();
+  protected rotateDelta = new Vector2();
+
+  protected panStart = new Vector2();
+  protected panEnd = new Vector2();
+  protected panDelta = new Vector2();
+
+  protected dollyStart = new Vector2();
+  protected dollyEnd = new Vector2();
+  protected dollyDelta = new Vector2();
+
+  protected dollyDirection = new Vector3();
+  protected mouse = new Vector2();
+  protected performCursorZoom = false;
+
+  protected pointers: PointerEvent[] = [];
+  protected pointerPositions: { [key: string]: Vector2 } = {};
+
+  public domElement: HTMLElement;
 
   // "target" sets the location of focus, where the object orbits around
   public target = new Vector3();
@@ -94,8 +136,8 @@ export class ThirdPersonCameraController implements CameraController<Perspective
   public reverseHorizontalOrbit = false; // true if you want to reverse the horizontal orbit direction
   public reverseVerticalOrbit = false; // true if you want to reverse the vertical orbit direction
 
-  // The four arrow keys
-  public keys = { LEFT: 'ArrowLeft', UP: 'ArrowUp', RIGHT: 'ArrowRight', BOTTOM: 'ArrowDown' };
+  // Optional Keyboard input
+  public keys: CameraControllerKeys | null = null;
 
   // Mouse buttons
   public mouseButtons: Partial<{
@@ -114,44 +156,17 @@ export class ThirdPersonCameraController implements CameraController<Perspective
     TWO: TOUCH;
   }> = { ONE: TOUCH.ROTATE, TWO: TOUCH.DOLLY_PAN };
 
-  // Reset internals
-  protected target0: Vector3;
-  protected position0: Vector3;
-  protected zoom0: number;
+  public get enabled(): boolean {
+    return this._enabled;
+  }
 
-  // Internals
-  protected state = ControlState.NONE;
+  public set enabled(value: boolean) {
+    this._enabled = value;
+    this.input.enabled = value;
+  }
 
-  protected EPS = 0.000001;
-
-  // current position in spherical coordinates
-  protected spherical = new Spherical();
-  protected sphericalDelta = new Spherical();
-
-  protected scale = 1;
-  protected panOffset = new Vector3();
-
-  protected rotateStart = new Vector2();
-  protected rotateEnd = new Vector2();
-  protected rotateDelta = new Vector2();
-
-  protected panStart = new Vector2();
-  protected panEnd = new Vector2();
-  protected panDelta = new Vector2();
-
-  protected dollyStart = new Vector2();
-  protected dollyEnd = new Vector2();
-  protected dollyDelta = new Vector2();
-
-  protected dollyDirection = new Vector3();
-  protected mouse = new Vector2();
-  protected performCursorZoom = false;
-
-  protected pointers: PointerEvent[] = [];
-  protected pointerPositions: { [key: string]: Vector2 } = {};
-
-  constructor(camera: PerspectiveCamera, domElement: HTMLCanvasElement) {
-    this.camera = camera;
+  constructor(camera: PerspectiveCamera, domElement: HTMLCanvasElement, input: Input) {
+    super(camera);
     this.domElement = domElement;
 
     // For reset
@@ -159,22 +174,26 @@ export class ThirdPersonCameraController implements CameraController<Perspective
     this.position0 = this.camera.position.clone();
     this.zoom0 = this.camera.zoom;
 
+    this.input = input;
+
+    this.initialize = this.initialize.bind(this);
+    this.onUpdate = this.onUpdate.bind(this);
+    this.dispose = this.dispose.bind(this);
+  }
+
+  public initialize(camera: PerspectiveCamera, domElement: HTMLCanvasElement): void {
     // Setup events
-    this.domElement = domElement;
     // disables touch scroll
     // touch-action needs to be defined for pointer events to work on mobile
     // https://stackoverflow.com/a/48254578
     this.domElement.style.touchAction = 'none';
-    this.domElement.addEventListener('contextmenu', this.onContextMenu);
+    // this.domElement.addEventListener('contextmenu', this.onContextMenu);
     this.domElement.addEventListener('pointerdown', this.onPointerDown);
     this.domElement.addEventListener('pointercancel', this.onPointerCancel);
     this.domElement.addEventListener('wheel', this.onMouseWheel);
-
-    this.run = this.run.bind(this);
-    this.dispose = this.dispose.bind(this);
   }
 
-  public run(): void {
+  public onUpdate(): void {
     const offset = new Vector3();
     const up = new Vector3(0, 1, 0);
 
@@ -187,6 +206,9 @@ export class ThirdPersonCameraController implements CameraController<Perspective
 
     const twoPI = 2 * Math.PI;
     const position = this.camera.position;
+
+    // Handle Input
+    this.handleKeyDown();
 
     // update new up direction
     quat.setFromUnitVectors(this.camera.up, up);
@@ -333,26 +355,20 @@ export class ThirdPersonCameraController implements CameraController<Perspective
   }
 
   public dispose(): void {
-    this.domElement.removeEventListener('contextmenu', this.onContextMenu);
+    // this.domElement.removeEventListener('contextmenu', this.onContextMenu);
     this.domElement.removeEventListener('pointerdown', this.onPointerDown);
     this.domElement.removeEventListener('pointercancel', this.onPointerCancel);
     this.domElement.removeEventListener('wheel', this.onMouseWheel);
     this.domElement.ownerDocument.removeEventListener('pointermove', this.onPointerMove);
     this.domElement.ownerDocument.removeEventListener('pointerup', this.onPointerUp);
-    this.domElement.removeEventListener('keydown', this.onKeyDown);
   }
 
-  private onContextMenu(event: Event) {
-    if (!this.enabled) return;
-    event.preventDefault();
-  }
-
-  private onPointerDown(event: PointerEvent) {
-    if (!this.enabled) return;
+  private onPointerDown = (event: PointerEvent) => {
+    if (!this._enabled) return;
 
     if (this.pointers.length === 0) {
-      this.domElement?.ownerDocument.addEventListener('pointermove', this.onPointerMove);
-      this.domElement?.ownerDocument.addEventListener('pointerup', this.onPointerUp);
+      this.domElement.ownerDocument.addEventListener('pointermove', this.onPointerMove);
+      this.domElement.ownerDocument.addEventListener('pointerup', this.onPointerUp);
     }
 
     this.addPointer(event);
@@ -362,36 +378,36 @@ export class ThirdPersonCameraController implements CameraController<Perspective
     } else {
       this.onMouseDown(event);
     }
-  }
+  };
 
-  private onPointerMove(event: PointerEvent) {
-    if (!this.enabled) return;
+  private onPointerMove = (event: PointerEvent) => {
+    if (!this._enabled) return;
 
     if (event.pointerType === 'touch') {
       this.onTouchMove(event);
     } else {
       this.onMouseMove(event);
     }
-  }
+  };
 
-  private onPointerUp(event: PointerEvent) {
+  private onPointerUp = (event: PointerEvent) => {
     this.removePointer(event);
 
     if (this.pointers.length === 0) {
-      this.domElement?.releasePointerCapture(event.pointerId);
+      this.domElement.releasePointerCapture(event.pointerId);
 
-      this.domElement?.ownerDocument.removeEventListener('pointermove', this.onPointerMove);
-      this.domElement?.ownerDocument.removeEventListener('pointerup', this.onPointerUp);
+      this.domElement.ownerDocument.removeEventListener('pointermove', this.onPointerMove);
+      this.domElement.ownerDocument.removeEventListener('pointerup', this.onPointerUp);
     }
 
     this.state = ControlState.NONE;
-  }
+  };
 
-  private onPointerCancel(event: PointerEvent) {
+  private onPointerCancel = (event: PointerEvent) => {
     this.removePointer(event);
-  }
+  };
 
-  private onMouseDown(event: MouseEvent) {
+  private onMouseDown = (event: MouseEvent) => {
     let mouseAction;
 
     switch (event.button) {
@@ -445,10 +461,10 @@ export class ThirdPersonCameraController implements CameraController<Perspective
       default:
         this.state = ControlState.NONE;
     }
-  }
+  };
 
-  private onMouseMove(event: MouseEvent) {
-    if (!this.enabled) return;
+  private onMouseMove = (event: MouseEvent) => {
+    if (!this._enabled) return;
 
     switch (this.state) {
       case ControlState.ROTATE:
@@ -466,24 +482,23 @@ export class ThirdPersonCameraController implements CameraController<Perspective
         this.handleMouseMovePan(event);
         break;
     }
-  }
+  };
 
-  private onMouseWheel(event: WheelEvent) {
-    if (!this.enabled || !this.enableZoom || (this.state !== ControlState.NONE && this.state !== ControlState.ROTATE)) {
+  private onMouseWheel = (event: WheelEvent) => {
+    if (
+      !this._enabled ||
+      !this.enableZoom ||
+      (this.state !== ControlState.NONE && this.state !== ControlState.ROTATE)
+    ) {
       return;
     }
 
     event.preventDefault();
 
     this.handleMouseWheel(event);
-  }
+  };
 
-  private onKeyDown(event: KeyboardEvent) {
-    if (!this.enabled || !this.enablePan) return;
-    this.handleKeyDown(event);
-  }
-
-  private onTouchStart(event: PointerEvent) {
+  private onTouchStart = (event: PointerEvent) => {
     this.trackPointer(event);
 
     switch (this.pointers.length) {
@@ -530,9 +545,9 @@ export class ThirdPersonCameraController implements CameraController<Perspective
       default:
         this.state = ControlState.NONE;
     }
-  }
+  };
 
-  private onTouchMove(event: PointerEvent) {
+  private onTouchMove = (event: PointerEvent) => {
     this.trackPointer(event);
 
     switch (this.state) {
@@ -559,7 +574,7 @@ export class ThirdPersonCameraController implements CameraController<Perspective
       default:
         this.state = ControlState.NONE;
     }
-  }
+  };
 
   private addPointer(event: PointerEvent) {
     this.pointers.push(event);
@@ -679,35 +694,19 @@ export class ThirdPersonCameraController implements CameraController<Perspective
     // this.update();
   };
 
-  private handleKeyDown = (event: KeyboardEvent) => {
-    let needsUpdate = false;
+  private handleKeyDown = () => {
+    if (!this._enabled || !this.enablePan || !this.keys) return;
 
-    switch (event.code) {
-      case this.keys.UP:
-        this.pan(0, this.keyPanSpeed);
-        needsUpdate = true;
-        break;
-
-      case this.keys.BOTTOM:
-        this.pan(0, -this.keyPanSpeed);
-        needsUpdate = true;
-        break;
-
-      case this.keys.LEFT:
-        this.pan(this.keyPanSpeed, 0);
-        needsUpdate = true;
-        break;
-
-      case this.keys.RIGHT:
-        this.pan(-this.keyPanSpeed, 0);
-        needsUpdate = true;
-        break;
+    if (this.input.getKeyDown(this.keys.UP)) {
+      this.pan(0, this.keyPanSpeed);
+    } else if (this.input.getKeyDown(this.keys.DOWN)) {
+      this.pan(0, -this.keyPanSpeed);
     }
 
-    if (needsUpdate) {
-      // prevent the browser from scrolling on cursor keys
-      event.preventDefault();
-      // this.update();
+    if (this.input.getKeyDown(this.keys.LEFT)) {
+      this.pan(this.keyPanSpeed, 0);
+    } else if (this.input.getKeyDown(this.keys.RIGHT)) {
+      this.pan(-this.keyPanSpeed, 0);
     }
   };
 

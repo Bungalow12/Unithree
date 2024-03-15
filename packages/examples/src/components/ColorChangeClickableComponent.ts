@@ -1,5 +1,6 @@
 import { Color, ColorRepresentation, Intersection, Mesh, MeshStandardMaterial } from 'three';
-import { Component, Entity } from 'unithree';
+import Component from 'unithree/dist/core/Component';
+import Entity from 'unithree/dist/core/Entity';
 
 export class ColorChangeClickableComponent implements Component {
   private colors: ColorRepresentation[] = [0x00ff00, 0xff0000];

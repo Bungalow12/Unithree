@@ -1,8 +1,10 @@
-import { Entity } from './Entity';
+import Entity from './Entity';
 
 /**
  * The base Component interface.
  */
-export interface Component {
+interface Component {
   entity: Entity | null;
 }
+
+export default Component;
