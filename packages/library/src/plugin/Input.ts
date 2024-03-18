@@ -19,23 +19,14 @@ export enum PointerButton {
   Secondary,
 }
 
+/**
+ * The type of pointer input device
+ */
 export enum InputType {
   Mouse = 'mouse',
   Pen = 'pen',
   Touch = 'touch',
 }
-
-const convertStringToInputType = (str: string): InputType | null => {
-  switch (str) {
-    case 'mouse':
-      return InputType.Mouse;
-    case 'pen':
-      return InputType.Pen;
-    case 'touch':
-      return InputType.Touch;
-  }
-  return null;
-};
 
 /**
  * Represents the state of a pointer
@@ -46,7 +37,16 @@ export class PointerState {
   private pointerDelta = new Vector2();
   private _pointerButtonStates = new Map<PointerButton, ButtonState>();
 
+  /**
+   * The type of the pointer
+   * @type {InputType} Mouse, Pen or Touch
+   */
   public readonly type: InputType;
+
+  /**
+   * If the pointer is considered primary
+   * @type {boolean} True if the pointer is considered primary
+   */
   public isPrimary = false;
 
   constructor(id: number, type: InputType) {
@@ -54,39 +54,61 @@ export class PointerState {
     this.id = id;
   }
 
+  /**
+   * Gets the most recent coordinates of the pointer
+   * @returns {Vector2} Pointer coordinates in reference to the Page
+   */
   public get coordinates(): Vector2 {
     return this.pointerCoordinates;
   }
 
+  /**
+   * Gets the delta since last update
+   * @returns {Vector2} Pointer delta in reference to the Page
+   */
   public get delta(): Vector2 {
     return this.pointerDelta;
   }
 
+  /**
+   * Gets the map of button states
+   * @returns {Map<PointerButton, ButtonState>} Map of button types to button states
+   */
   public get pointerButtonStates(): Map<PointerButton, ButtonState> {
     return this._pointerButtonStates;
   }
 
+  /**
+   * Gets the state of a specific button
+   * @param {PointerButton} button the pointer button
+   * @returns {ButtonState | null} the state or null if not recently used
+   */
   public getButtonState = (button: PointerButton): ButtonState | null => {
     const state = this._pointerButtonStates.get(button);
     return state ?? null;
   };
 
-  public setButtonState = (button: PointerButton, state: ButtonState) => {
+  /**
+   * Sets the state for a specific button
+   * @param {PointerButton} button the pointer button
+   * @param {ButtonState} state the state of the button
+   */
+  public setButtonState = (button: PointerButton, state: ButtonState): void => {
     this._pointerButtonStates.set(button, state);
   };
 
   /**
-   * Returns whether the given mouse button is held down.
-   * @param {PointerButton} button
-   * @returns {boolean} True if pressed or held
+   * Returns whether the given pointer button is held down but has not just been pressed this frame.
+   * @param {PointerButton} button the pointer button
+   * @returns {boolean} True if held
    */
   public getPointerButton = (button: PointerButton): boolean => {
     return this._pointerButtonStates.has(button) && this._pointerButtonStates.get(button) !== ButtonState.Released;
   };
 
   /**
-   * Returns true during the frame the user pressed the given mouse button.
-   * @param {PointerButton} button
+   * Returns true during the frame the user pressed the given pointer button.
+   * @param {PointerButton} button the pointer button
    * @returns {boolean} True if pressed this frame
    */
   public getPointerButtonPressed = (button: PointerButton): boolean => {
@@ -94,9 +116,9 @@ export class PointerState {
   };
 
   /**
-   * Returns true if the given mouse button is being held.
-   * @param {PointerButton} button
-   * @returns {boolean} True if held
+   * Returns true if the given pointer button has been pressed or is being held.
+   * @param {PointerButton} button the pointer button
+   * @returns {boolean} True if pressed or held
    */
   public getPointerButtonDown = (button: PointerButton): boolean => {
     return (
@@ -107,8 +129,8 @@ export class PointerState {
   };
 
   /**
-   * Returns true during the frame the user releases the given mouse button.
-   * @param {PointerButton} button
+   * Returns true during the frame the user releases the given pointer button.
+   * @param {PointerButton} button the pointer button
    * @returns {boolean} True if released this frame
    */
   public getPointerButtonUp = (button: PointerButton): boolean => {
@@ -116,13 +138,23 @@ export class PointerState {
   };
 }
 
+/**
+ * Class maintaining a collection of pointer states
+ */
 export class PointerStateCollection {
-  private touchIds: number[] = [];
-  private penIds: number[] = [];
-  private mouseId: number[] = [];
+  private touchIds: Set<number> = new Set<number>();
+  private penIds: Set<number> = new Set<number>();
+  private mouseIds: Set<number> = new Set<number>();
 
   private pointers = new Map<number, PointerState>();
 
+  /**
+   * Sets a pointer state
+   * @param {number} id event.pointerId
+   * @param {InputType} type event.pointerType
+   * @param {boolean} isPrimary event.isPrimary
+   * @returns {PointerState} the state that was set
+   */
   public set = (id: number, type: InputType, isPrimary: boolean): PointerState => {
     const state = this.pointers.get(id) ?? new PointerState(id, type);
     state.isPrimary = isPrimary;
@@ -131,64 +163,83 @@ export class PointerStateCollection {
 
     switch (type) {
       case InputType.Mouse:
-        this.mouseId.push(id);
+        this.mouseIds.add(id);
         break;
       case InputType.Pen:
-        this.penIds.push(id);
+        this.penIds.add(id);
         break;
       case InputType.Touch:
-        this.touchIds.push(id);
+        this.touchIds.add(id);
         break;
     }
     return state;
   };
 
-  public delete = (id: number) => {
+  /**
+   * Deletes a previously set pointer
+   * @param {number} id event.pointerId
+   */
+  public delete = (id: number): void => {
     const type = this.pointers.get(id)?.type;
     this.pointers.delete(id);
 
-    let index;
     switch (type) {
       case InputType.Mouse:
-        index = this.mouseId.findIndex((value) => value === id);
-        this.mouseId.splice(index, index);
+        this.mouseIds.delete(id);
         break;
       case InputType.Pen:
-        index = this.penIds.findIndex((value) => value === id);
-        this.penIds.splice(index, index);
+        this.penIds.delete(id);
         break;
       case InputType.Touch:
-        index = this.touchIds.findIndex((value) => value === id);
-        this.touchIds.splice(index, index);
+        this.touchIds.delete(id);
         break;
     }
   };
 
+  /**
+   * Gets a pointer state
+   * @param {number} id event.pointerId
+   * @returns {PointerState | null} the pointer state or null if it does not exist
+   */
   public get = (id: number): PointerState | null => {
     return this.pointers.get(id) ?? null;
   };
 
+  /**
+   * Gets all pointer states
+   * @returns {PointerState[]}
+   */
   public getAll = (): PointerState[] => {
     return Array.from(this.pointers.values());
   };
 
-  public getNumberOf = (type: InputType) => {
+  /**
+   * Gets the number of pointers of a specified type
+   * @param {InputType} type the pointer input type
+   * @returns {number} the number of present pointers of that type
+   */
+  public getNumberOf = (type: InputType): number => {
     switch (type) {
       case InputType.Mouse:
-        return this.mouseId.length;
+        return this.mouseIds.size;
       case InputType.Pen:
-        return this.penIds.length;
+        return this.penIds.size;
       case InputType.Touch:
-        return this.touchIds.length;
+        return this.touchIds.size;
     }
   };
 
-  public getAllOf = (type: InputType) => {
+  /**
+   * Gets all pointer states of a specified input
+   * @param {InputType} type the type of the input
+   * @returns {PointerState[]} a list of all matching pointer states
+   */
+  public getAllOf = (type: InputType): PointerState[] => {
     const states: PointerState[] = [];
 
     switch (type) {
       case InputType.Mouse:
-        this.mouseId.forEach((id) => {
+        this.mouseIds.forEach((id) => {
           if (this.pointers.has(id)) {
             states.push(this.pointers.get(id)!);
           }
@@ -213,34 +264,48 @@ export class PointerStateCollection {
     return states;
   };
 
-  public getPrimaryOf = (type: InputType) => {
+  /**
+   * Gets only the primary pointer state for the specified type
+   * @param {InputType} type the pointer input type
+   * @returns {PointerState | null} the primary pointer state or null if it does not exist
+   */
+  public getPrimaryOf = (type: InputType): PointerState | null => {
     for (const pointer of this.pointers.values()) {
       if (pointer.isPrimary && pointer.type === type) {
         return pointer;
       }
     }
+
+    return null;
   };
 
-  public clearAllDeltas = () => {
+  /**
+   * Clears all the deltas per pointer
+   */
+  public clearAllDeltas = (): void => {
     this.pointers.forEach((pointer) => pointer.delta.set(0, 0));
   };
 }
 
 /**
- * Class that processes user plugin and allows for easy reading of the states and values
+ * Class that processes user input and allows for easy reading of the states and values
  */
 class Input extends ProcessorPlugin {
+  /**
+   * Simple Map of string to InputType
+   * @type {Map<string, InputType>} the map of string to Input Type
+   */
+  public static stringToInputMap: Map<string, InputType> = new Map<string, InputType>([
+    ['mouse', InputType.Mouse],
+    ['pen', InputType.Pen],
+    ['touch', InputType.Touch],
+  ]);
+
   private reusableVector = new Vector2();
 
   protected domElement: HTMLCanvasElement;
   protected pointerStates: PointerStateCollection = new PointerStateCollection();
-
-  // protected pointerCoordinates: Vector2 = new Vector2();
-  // protected framePointerDelta = new Vector2();
-  // protected pointerDelta = new Vector2();
-
   protected keyStates = new Map<string, ButtonState>();
-  // protected pointerButtonStates = new Map<PointerButton, ButtonState>();
 
   protected mouseScrollDelta = new Vector2();
   protected _mouseScrollDeltaMode = 0;
@@ -278,13 +343,15 @@ class Input extends ProcessorPlugin {
       return out ? out.set(...state.delta.toArray()) : state.delta.clone();
     }
     return out ? out.set(0, 0) : new Vector2();
+  };
 
-    // const previousPosition = this.previousPointerCoordinates
-    //   ? this.previousPointerCoordinates
-    //   : this._pointerCoordinates;
-    // out.set(previousPosition.x - this._pointerCoordinates.x, previousPosition.y - this._pointerCoordinates.y);
-
-    // return out;
+  /**
+   * Get primary Pointer State
+   * @param {InputType} type input type filter. Default : Mouse
+   * @returns {PointerState} Primary pointer state for the input type
+   */
+  public getPrimaryPointerState = (type: InputType = InputType.Mouse): PointerState | null => {
+    return this.pointerStates.getPrimaryOf(type) ?? null;
   };
 
   /**
@@ -309,20 +376,24 @@ class Input extends ProcessorPlugin {
 
   /**
    * Gets the mouse scroll delta since last frame
-   * @returns {Vector2}
+   * @returns {Vector2} the two dimensional scroll wheel delta
    */
   public getMouseScrollDelta(out?: Vector2): Vector2 {
     return out ? out.set(...this.mouseScrollDelta.toArray()) : this.mouseScrollDelta.clone();
   }
 
+  /**
+   * Returns the scroll mode. This is most likely pixel
+   * @returns {number} DOM_DELTA_PIXEL = 0, DOM_DELTA_LINE = 1, DOM_DELTA_PAGE = 2
+   */
   public get mouseScrollDeltaMode(): number {
     return this._mouseScrollDeltaMode;
   }
 
   /**
-   * Returns true while the user holds down the key identified by name.
-   * @param {string} keyName
-   * @returns {boolean} True if pressed or held
+   * Returns true if the key is being held but has not been pressed this frame.
+   * @param {string} keyName the key to check (event.keyName)
+   * @returns {boolean} True if held
    */
   public getKey = (keyName: string): boolean => {
     return this.keyStates.has(keyName) && this.keyStates.get(keyName) !== ButtonState.Released;
@@ -330,7 +401,7 @@ class Input extends ProcessorPlugin {
 
   /**
    * Returns true during the frame the user starts pressing down the key identified by name.
-   * @param {string} keyName
+   * @param {string} keyName the key to check (event.keyName)
    * @returns {boolean} True if pressed this frame
    */
   public getKeyPressed = (keyName: string): boolean => {
@@ -338,9 +409,9 @@ class Input extends ProcessorPlugin {
   };
 
   /**
-   * Returns true if the key identified by name is being held.
-   * @param {string} keyName
-   * @returns {boolean} True if held
+   * Returns true if the key identified by name was pressed or is being held.
+   * @param {string} keyName the key to check (event.keyName)
+   * @returns {boolean} True if pressed or held
    */
   public getKeyDown = (keyName: string): boolean => {
     return (
@@ -351,13 +422,17 @@ class Input extends ProcessorPlugin {
 
   /**
    * Returns true during the frame the user releases the key identified by name.
-   * @param {string} keyName
+   * @param {string} keyName the key to check (event.keyName)
    * @returns {boolean} True if released this frame
    */
   public getKeyUp = (keyName: string): boolean => {
     return this.keyStates.has(keyName) && this.keyStates.get(keyName) === ButtonState.Released;
   };
 
+  /**
+   * Initializes the Input plugin
+   * @param {HTMLCanvasElement} domElement the main canvas element for ThreeJS
+   */
   public initialize(domElement?: HTMLCanvasElement): void {
     this.domElement = domElement ?? this.domElement;
 
@@ -373,6 +448,9 @@ class Input extends ProcessorPlugin {
     this.domElement.ownerDocument.addEventListener('pointermove', this.onPointerMove);
   }
 
+  /**
+   * Cleans up the event listeners for the plugin
+   */
   public dispose(): void {
     this.domElement.removeEventListener('pointerdown', this.onPointerDown);
     this.domElement.removeEventListener('pointercancel', this.onPointerCancel);
@@ -385,6 +463,9 @@ class Input extends ProcessorPlugin {
     this.domElement.ownerDocument.removeEventListener('pointermove', this.onPointerMove);
   }
 
+  /**
+   * The update method called once per frame
+   */
   public update(): void {
     this.keyStates.forEach((value, key) => {
       if (value === ButtonState.Pressed) {
@@ -403,73 +484,116 @@ class Input extends ProcessorPlugin {
         }
       });
     });
+  }
 
+  /**
+   * The late update method called after all updates hav occurred
+   */
+  public lateUpdate(): void {
+    this.pointerStates.clearAllDeltas();
     this.mouseScrollDelta.set(0, 0);
   }
 
-  public lateUpdate(): void {
-    this.pointerStates.clearAllDeltas();
-  }
-
+  /**
+   * Handles the ContextMenu event
+   * @param {Event} event the event
+   */
   private onContextMenu = (event: Event) => {
     if (!this.enabled) return;
     event.preventDefault();
   };
 
-  private onPointerMove = (event: PointerEvent): void => {
-    // const pointerPosition = new Vector2(event.pageX, event.pageY);
-
-    // if (!this.previousPointerCoordinates) {
-    //   this.previousPointerCoordinates = pointerPosition.clone();
-    // } else {
-    //   this.previousPointerCoordinates = this._pointerCoordinates.clone();
-    // }
-    //
-    const type = convertStringToInputType(event.type);
-    if (type) {
-      const state = this.pointerStates.set(event.pointerId, type, event.isPrimary);
-
-      state.coordinates.set(event.pageX, event.pageY);
-      const buttonState = state.pointerButtonStates.get(event.button);
-      if (buttonState && buttonState !== ButtonState.Released) {
-        this.reusableVector.set(event.pageX, event.pageY);
-        state.delta.add(this.reusableVector);
-      }
-    }
-  };
-
+  /**
+   * Handles the pointer down event
+   * @param {PointerEvent} event the pointer event
+   */
   private onPointerDown = (event: PointerEvent): void => {
-    const type = convertStringToInputType(event.type);
-    if (type) {
-      const state = this.pointerStates.set(event.pointerId, type, event.isPrimary);
-      state.pointerButtonStates.set(event.button, ButtonState.Pressed);
+    const type = Input.stringToInputMap.get(event.pointerType);
+    switch (type) {
+      case InputType.Mouse:
+      case InputType.Pen:
+        const state = this.pointerStates.set(event.pointerId, type, event.isPrimary);
+        state.coordinates.set(event.pageX, event.pageY);
+        state.pointerButtonStates.set(event.button, ButtonState.Pressed);
+        break;
+      case InputType.Touch:
+        const touchState = this.pointerStates.set(event.pointerId, type, event.isPrimary);
+        touchState.coordinates.set(event.pageX, event.pageY);
+        break;
     }
   };
 
+  /**
+   * Handles the pointer move event
+   * @param {PointerEvent} event the pointer event
+   */
+  private onPointerMove = (event: PointerEvent): void => {
+    const type = Input.stringToInputMap.get(event.pointerType);
+    if (type) {
+      const state = this.pointerStates.set(event.pointerId, type, event.isPrimary);
+
+      // Set to current
+      this.reusableVector.set(event.pageX, event.pageY);
+
+      // Calculate delta
+      this.reusableVector.sub(state.coordinates);
+
+      // Update state
+      state.coordinates.set(event.pageX, event.pageY);
+      state.delta.add(this.reusableVector);
+    }
+  };
+
+  /**
+   * Handles the pointer up event
+   * @param {PointerEvent} event the pointer event
+   */
+  private onPointerUp = (event: PointerEvent): void => {
+    const type = Input.stringToInputMap.get(event.pointerType);
+    switch (type) {
+      case InputType.Mouse:
+      case InputType.Pen:
+        const state = this.pointerStates.set(event.pointerId, type, event.isPrimary);
+        state.pointerButtonStates.set(event.button, ButtonState.Released);
+        break;
+      case InputType.Touch:
+        this.pointerStates.delete(event.pointerId);
+        break;
+    }
+  };
+
+  /**
+   * Handles the pointer cancel event
+   * @param {PointerEvent} event the pointer event
+   */
   private onPointerCancel = (event: PointerEvent): void => {
-    const type = convertStringToInputType(event.type);
+    const type = Input.stringToInputMap.get(event.pointerType);
     if (type) {
       const state = this.pointerStates.set(event.pointerId, type, event.isPrimary);
       state.pointerButtonStates.delete(event.button);
     }
   };
 
-  private onPointerUp = (event: PointerEvent): void => {
-    const type = convertStringToInputType(event.type);
-    if (type) {
-      const state = this.pointerStates.set(event.pointerId, type, event.isPrimary);
-      state.pointerButtonStates.set(event.button, ButtonState.Released);
-    }
-  };
-
+  /**
+   * Handles the key down event
+   * @param {KeyboardEvent} event the keyboard event
+   */
   private onKeyDown = (event: KeyboardEvent): void => {
     this.keyStates.set(event.key, ButtonState.Pressed);
   };
 
+  /**
+   * Handles the key up event
+   * @param {KeyboardEvent} event the keyboard event
+   */
   private onKeyUp = (event: KeyboardEvent): void => {
     this.keyStates.set(event.key, ButtonState.Released);
   };
 
+  /**
+   * Handles the wheel/scroll event for a mouse or touchpad
+   * @param {WheelEvent} event
+   */
   private onWheel = (event: WheelEvent): void => {
     event.preventDefault();
 
