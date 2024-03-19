@@ -102,7 +102,7 @@ export class PointerState {
    * @param {PointerButton} button the pointer button
    * @returns {boolean} True if held
    */
-  public getPointerButton = (button: PointerButton): boolean => {
+  public getButtonHeld = (button: PointerButton): boolean => {
     return this._pointerButtonStates.has(button) && this._pointerButtonStates.get(button) !== ButtonState.Released;
   };
 
@@ -111,7 +111,7 @@ export class PointerState {
    * @param {PointerButton} button the pointer button
    * @returns {boolean} True if pressed this frame
    */
-  public getPointerButtonPressed = (button: PointerButton): boolean => {
+  public getButtonPressed = (button: PointerButton): boolean => {
     return this._pointerButtonStates.has(button) && this._pointerButtonStates.get(button) === ButtonState.Pressed;
   };
 
@@ -120,7 +120,7 @@ export class PointerState {
    * @param {PointerButton} button the pointer button
    * @returns {boolean} True if pressed or held
    */
-  public getPointerButtonDown = (button: PointerButton): boolean => {
+  public getButtonDown = (button: PointerButton): boolean => {
     return (
       this._pointerButtonStates.has(button) &&
       (this._pointerButtonStates.get(button) === ButtonState.Pressed ||
@@ -133,7 +133,7 @@ export class PointerState {
    * @param {PointerButton} button the pointer button
    * @returns {boolean} True if released this frame
    */
-  public getPointerButtonUp = (button: PointerButton): boolean => {
+  public getButtonUp = (button: PointerButton): boolean => {
     return this._pointerButtonStates.has(button) && this._pointerButtonStates.get(button) === ButtonState.Released;
   };
 }
@@ -395,7 +395,7 @@ class Input extends ProcessorPlugin {
    * @param {string} keyName the key to check (event.keyName)
    * @returns {boolean} True if held
    */
-  public getKey = (keyName: string): boolean => {
+  public getKeyHeld = (keyName: string): boolean => {
     return this.keyStates.has(keyName) && this.keyStates.get(keyName) !== ButtonState.Released;
   };
 

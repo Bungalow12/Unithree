@@ -263,7 +263,7 @@ export class ThirdPersonCameraController extends CameraController<PerspectiveCam
     const mouseState = this.input.getPrimaryPointerState(InputType.Mouse);
 
     if (mouseState) {
-      if (mouseState.getPointerButtonDown(PointerButton.Primary)) {
+      if (mouseState.getButtonDown(PointerButton.Primary)) {
         this.handlePointerRotate(mouseState);
       }
     }

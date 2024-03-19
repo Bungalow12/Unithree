@@ -90,6 +90,15 @@ export class CharacterCapsule extends Entity {
       this.position.addScaledVector(direction, CharacterCapsule.SPEED * deltaTime);
     }
 
+    // Move forward on touch
+    if (this.input?.touchCount === 1) {
+      const pLocal = CharacterCapsule.FORWARD.clone();
+      const pWorld = pLocal.applyMatrix4(camera.matrixWorld);
+      const direction = pWorld.sub(camera.getWorldPosition(reusableVector)).normalize();
+      direction.y = 0;
+      this.position.addScaledVector(direction, CharacterCapsule.SPEED * deltaTime);
+    }
+
     return this;
   }
 }
