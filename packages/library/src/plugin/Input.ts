@@ -29,13 +29,90 @@ export enum InputType {
 }
 
 /**
+ * Gamepad Thumb Sticks
+ */
+export enum ThumbStick {
+  Left,
+  Right,
+}
+
+/**
+ * Playstation standard button mapping based on https://w3c.github.io/gamepad/#remapping
+ */
+export enum PlaystationButtonMapping {
+  Cross,
+  Circle,
+  Square,
+  Triangle,
+  L1,
+  R1,
+  L2,
+  R2,
+  Select,
+  Start,
+  L3,
+  R3,
+  Up,
+  Down,
+  Left,
+  Right,
+  PSButton,
+}
+
+/**
+ * XBox standard button mapping based on https://w3c.github.io/gamepad/#remapping
+ */
+export enum XBoxButtonMapping {
+  A,
+  B,
+  X,
+  Y,
+  LB,
+  RB,
+  LT,
+  RT,
+  Back,
+  Play,
+  LeftStick,
+  RightStick,
+  Up,
+  Down,
+  Left,
+  Right,
+  Home,
+}
+
+/**
+ * Nintendo Switch standard button mapping based on https://w3c.github.io/gamepad/#remapping
+ */
+export enum SwitchButtonMapping {
+  B,
+  A,
+  Y,
+  X,
+  L,
+  R,
+  ZL,
+  ZR,
+  Minus,
+  Plus,
+  LeftStick,
+  RightStick,
+  Up,
+  Down,
+  Left,
+  Right,
+  Home,
+}
+
+/**
  * Represents the state of a pointer
  */
 export class PointerState {
   private id: number;
   private pointerCoordinates: Vector2 = new Vector2();
   private pointerDelta = new Vector2();
-  private _pointerButtonStates = new Map<PointerButton, ButtonState>();
+  private _buttonStates = new Map<PointerButton, ButtonState>();
 
   /**
    * The type of the pointer
@@ -74,8 +151,8 @@ export class PointerState {
    * Gets the map of button states
    * @returns {Map<PointerButton, ButtonState>} Map of button types to button states
    */
-  public get pointerButtonStates(): Map<PointerButton, ButtonState> {
-    return this._pointerButtonStates;
+  public get buttonStates(): Map<PointerButton, ButtonState> {
+    return this._buttonStates;
   }
 
   /**
@@ -84,7 +161,7 @@ export class PointerState {
    * @returns {ButtonState | null} the state or null if not recently used
    */
   public getButtonState = (button: PointerButton): ButtonState | null => {
-    const state = this._pointerButtonStates.get(button);
+    const state = this._buttonStates.get(button);
     return state ?? null;
   };
 
@@ -94,7 +171,7 @@ export class PointerState {
    * @param {ButtonState} state the state of the button
    */
   public setButtonState = (button: PointerButton, state: ButtonState): void => {
-    this._pointerButtonStates.set(button, state);
+    this._buttonStates.set(button, state);
   };
 
   /**
@@ -103,7 +180,7 @@ export class PointerState {
    * @returns {boolean} True if held
    */
   public getButtonHeld = (button: PointerButton): boolean => {
-    return this._pointerButtonStates.has(button) && this._pointerButtonStates.get(button) !== ButtonState.Released;
+    return this._buttonStates.has(button) && this._buttonStates.get(button) !== ButtonState.Released;
   };
 
   /**
@@ -112,7 +189,7 @@ export class PointerState {
    * @returns {boolean} True if pressed this frame
    */
   public getButtonPressed = (button: PointerButton): boolean => {
-    return this._pointerButtonStates.has(button) && this._pointerButtonStates.get(button) === ButtonState.Pressed;
+    return this._buttonStates.has(button) && this._buttonStates.get(button) === ButtonState.Pressed;
   };
 
   /**
@@ -122,9 +199,8 @@ export class PointerState {
    */
   public getButtonDown = (button: PointerButton): boolean => {
     return (
-      this._pointerButtonStates.has(button) &&
-      (this._pointerButtonStates.get(button) === ButtonState.Pressed ||
-        this._pointerButtonStates.get(button) === ButtonState.Held)
+      this._buttonStates.has(button) &&
+      (this._buttonStates.get(button) === ButtonState.Pressed || this._buttonStates.get(button) === ButtonState.Held)
     );
   };
 
@@ -134,7 +210,7 @@ export class PointerState {
    * @returns {boolean} True if released this frame
    */
   public getButtonUp = (button: PointerButton): boolean => {
-    return this._pointerButtonStates.has(button) && this._pointerButtonStates.get(button) === ButtonState.Released;
+    return this._buttonStates.has(button) && this._buttonStates.get(button) === ButtonState.Released;
   };
 }
 
@@ -288,6 +364,186 @@ export class PointerStateCollection {
 }
 
 /**
+ * Represents the state of a gamepad
+ */
+export class GamepadState {
+  private id: string;
+  private _buttonStates = new Map<number, ButtonState>();
+
+  public playerIndex: number;
+
+  public lastUpdated = 0;
+
+  constructor(id: string, playerIndex = 0) {
+    this.id = id;
+    this.playerIndex = playerIndex;
+  }
+
+  /**
+   * the total number of Axes available for this gamepad
+   * @returns {number} the number of available axes
+   */
+  public get totalAxes(): number {
+    return navigator.getGamepads()[this.playerIndex]?.axes.length ?? 0;
+  }
+
+  /**
+   * The total number of buttons available for this gamepad
+   * @returns {number} the number of available buttons
+   */
+  public get totalButtons(): number {
+    return navigator.getGamepads()[this.playerIndex]?.buttons.length ?? 0;
+  }
+
+  /**
+   * Gets the map of button states
+   * @returns {Map<number, ButtonState>} Map of button types to button states
+   */
+  public get buttonStates(): Map<number, ButtonState> {
+    return this._buttonStates;
+  }
+
+  /**
+   * Get an individual axis by index
+   * @param {number} index the index of the axis. (NOTE: Even is vertical, Odd is horizontal)
+   * @returns {number} The value with a default of 0
+   */
+  public getAxis = (index: number): number => {
+    return navigator.getGamepads()[this.playerIndex]?.axes[index] ?? 0;
+  };
+
+  /**
+   * Gets the value of the thumb stick X and Y axis (-1.0 - 1.0)
+   * @param {ThumbStick} stick stick starting index
+   * @param {Vector2} out (Optional) out vector for reuse
+   * @returns {Vector2} the Vector2 representing the thumb stick values
+   */
+  public getThumbStickValue = (stick: ThumbStick, out?: Vector2): Vector2 => {
+    const y = navigator.getGamepads()[this.playerIndex]?.axes[stick] ?? 0;
+    const x = navigator.getGamepads()[this.playerIndex]?.axes[stick + 1] ?? 0;
+    return out ? out.set(x, y) : new Vector2(x, y);
+  };
+
+  /**
+   * Gets whether a capacitive button is being touched. This will mirror the pressed state if the button is not capacitive
+   * @param {number} button the button index
+   * @returns {boolean} true if being touched
+   */
+  public getButtonTouchedState = (button: number): boolean => {
+    return navigator.getGamepads()[this.playerIndex]?.buttons[button].touched ?? false;
+  };
+
+  /**
+   * Gets the state of a specific button
+   * @param {number} button the button index
+   * @returns {ButtonState | null} the state or null if not recently used
+   */
+  public getButtonState = (button: number): ButtonState | null => {
+    const state = this._buttonStates.get(button);
+    return state ?? null;
+  };
+
+  /**
+   * Sets the state for a specific button
+   * @param {number} button the button index
+   * @param {ButtonState} state the state of the button
+   */
+  public setButtonState = (button: number, state: ButtonState): void => {
+    this._buttonStates.set(button, state);
+  };
+
+  /**
+   * Returns whether the given button is held down but has not just been pressed this frame.
+   * @param {number} button the button index
+   * @returns {boolean} True if held
+   */
+  public getButtonHeld = (button: number): boolean => {
+    return this._buttonStates.has(button) && this._buttonStates.get(button) !== ButtonState.Released;
+  };
+
+  /**
+   * Returns true during the frame the user pressed the given button.
+   * @param {number} button the button index
+   * @returns {boolean} True if pressed this frame
+   */
+  public getButtonPressed = (button: number): boolean => {
+    return this._buttonStates.has(button) && this._buttonStates.get(button) === ButtonState.Pressed;
+  };
+
+  /**
+   * Returns true if the given button has been pressed or is being held.
+   * @param {number} button the button index
+   * @returns {boolean} True if pressed or held
+   */
+  public getButtonDown = (button: number): boolean => {
+    return (
+      this._buttonStates.has(button) &&
+      (this._buttonStates.get(button) === ButtonState.Pressed || this._buttonStates.get(button) === ButtonState.Held)
+    );
+  };
+
+  /**
+   * Returns true during the frame the user releases the given button.
+   * @param {number} button the button index
+   * @returns {boolean} True if released this frame
+   */
+  public getButtonUp = (button: number): boolean => {
+    return this._buttonStates.has(button) && this._buttonStates.get(button) === ButtonState.Released;
+  };
+}
+
+/**
+ * Class maintaining a collection of gamepad states
+ */
+export class GamepadStateCollection {
+  private gamepads = new Map<string, GamepadState>();
+
+  /**
+   * Sets a gamepad state
+   * @param {string} id event.gamepad.id
+   * @param {number} playerIndex event.gamepad.index
+   * @param timestamp event.gamepad.timestamp
+   * @returns {GamepadState} the state that was set
+   */
+  public set = (id: string, playerIndex: number, timestamp: number): GamepadState => {
+    const state = this.gamepads.get(id) ?? new GamepadState(id);
+
+    if (state.lastUpdated <= timestamp) {
+      state.playerIndex = playerIndex;
+      state.lastUpdated = timestamp;
+      this.gamepads.set(id, state);
+    }
+
+    return state;
+  };
+
+  /**
+   * Deletes a previously set gamepad
+   * @param {string} id event.gamepad.id
+   */
+  public delete = (id: string): void => {
+    this.gamepads.delete(id);
+  };
+
+  /**
+   * Gets a gamepad state
+   * @param {string} id event.gamepad.id
+   * @returns {GamepadState | null} the gamepad state or null if it does not exist
+   */
+  public get = (id: string): GamepadState | null => {
+    return this.gamepads.get(id) ?? null;
+  };
+
+  /**
+   * Gets all gamepad states
+   * @returns {GamepadState[]}
+   */
+  public getAll = (): GamepadState[] => {
+    return Array.from(this.gamepads.values());
+  };
+}
+
+/**
  * Class that processes user input and allows for easy reading of the states and values
  */
 class Input extends ProcessorPlugin {
@@ -305,6 +561,7 @@ class Input extends ProcessorPlugin {
 
   protected domElement: HTMLCanvasElement;
   protected pointerStates: PointerStateCollection = new PointerStateCollection();
+  protected gamepadStates: GamepadStateCollection = new GamepadStateCollection();
   protected keyStates = new Map<string, ButtonState>();
 
   protected mouseScrollDelta = new Vector2();
@@ -313,8 +570,7 @@ class Input extends ProcessorPlugin {
   constructor(domElement: HTMLCanvasElement) {
     super(ExecutionType.Always);
     this.domElement = domElement;
-    this.initialize = this.initialize.bind(this);
-    this.update = this.update.bind(this);
+    this.updateGamepadStates = this.updateGamepadStates.bind(this);
   }
 
   /**
@@ -378,9 +634,8 @@ class Input extends ProcessorPlugin {
    * Gets the mouse scroll delta since last frame
    * @returns {Vector2} the two dimensional scroll wheel delta
    */
-  public getMouseScrollDelta(out?: Vector2): Vector2 {
-    return out ? out.set(...this.mouseScrollDelta.toArray()) : this.mouseScrollDelta.clone();
-  }
+  public getMouseScrollDelta = (out?: Vector2): Vector2 =>
+    out ? out.set(...this.mouseScrollDelta.toArray()) : this.mouseScrollDelta.clone();
 
   /**
    * Returns the scroll mode. This is most likely pixel
@@ -389,6 +644,25 @@ class Input extends ProcessorPlugin {
   public get mouseScrollDeltaMode(): number {
     return this._mouseScrollDeltaMode;
   }
+
+  /**
+   * Get the gamepad for a specific player
+   * @param {number} playerIndex Zero based index of players
+   * @returns {GamepadState | null} the gamepad state or null if not found
+   */
+  public getGamepad = (playerIndex: number): GamepadState | null => {
+    const id = navigator.getGamepads()[playerIndex]?.id ?? '';
+
+    return this.gamepadStates.get(id);
+  };
+
+  /**
+   * Gets all connected gamepad states
+   * @returns {GamepadState[]} the gamepad states
+   */
+  public getGamepads = (): GamepadState[] => {
+    return this.gamepadStates.getAll();
+  };
 
   /**
    * Returns true if the key is being held but has not been pressed this frame.
@@ -446,6 +720,9 @@ class Input extends ProcessorPlugin {
 
     this.domElement.ownerDocument.addEventListener('pointerup', this.onPointerUp);
     this.domElement.ownerDocument.addEventListener('pointermove', this.onPointerMove);
+
+    window.addEventListener('gamepadconnected', this.onGamepadConnected);
+    window.addEventListener('gamepaddisconnected', this.onGamepadDisconnected);
   }
 
   /**
@@ -461,12 +738,17 @@ class Input extends ProcessorPlugin {
 
     this.domElement.ownerDocument.removeEventListener('pointerup', this.onPointerUp);
     this.domElement.ownerDocument.removeEventListener('pointermove', this.onPointerMove);
+
+    window.removeEventListener('gamepadconnected', this.onGamepadConnected);
+    window.removeEventListener('gamepaddisconnected', this.onGamepadDisconnected);
   }
 
   /**
    * The update method called once per frame
    */
   public update(): void {
+    this.updateGamepadStates();
+
     this.keyStates.forEach((value, key) => {
       if (value === ButtonState.Pressed) {
         this.keyStates.set(key, ButtonState.Held);
@@ -476,11 +758,11 @@ class Input extends ProcessorPlugin {
     });
 
     this.pointerStates.getAll().forEach((state) => {
-      state.pointerButtonStates.forEach((value, key) => {
+      state.buttonStates.forEach((value, key) => {
         if (value === ButtonState.Pressed) {
-          state.pointerButtonStates.set(key, ButtonState.Held);
+          state.buttonStates.set(key, ButtonState.Held);
         } else if (value === ButtonState.Released) {
-          state.pointerButtonStates.delete(key);
+          state.buttonStates.delete(key);
         }
       });
     });
@@ -492,6 +774,34 @@ class Input extends ProcessorPlugin {
   public lateUpdate(): void {
     this.pointerStates.clearAllDeltas();
     this.mouseScrollDelta.set(0, 0);
+  }
+
+  protected updateGamepadStates(): void {
+    const connectedGamepads = navigator.getGamepads();
+
+    connectedGamepads.forEach((gamepad) => {
+      if (!gamepad || !gamepad.connected) return;
+
+      // Just in case this somehow happens prior to the connected event
+      const state = this.gamepadStates.set(gamepad.id, gamepad.index, gamepad.timestamp);
+
+      // If this fails the timestamp is out of order and latest wins
+      if (state.lastUpdated !== gamepad.timestamp) return;
+
+      gamepad.buttons.forEach((button, index) => {
+        const previousState = state.buttonStates.get(index) ?? null;
+
+        if (previousState === null && button.pressed) {
+          state.buttonStates.set(index, ButtonState.Pressed);
+        } else if (previousState === ButtonState.Pressed && button.pressed) {
+          state.buttonStates.set(index, ButtonState.Held);
+        } else if (previousState !== ButtonState.Released && !button.pressed) {
+          state.buttonStates.set(index, ButtonState.Released);
+        } else if (previousState === ButtonState.Released && !button.pressed) {
+          state.buttonStates.delete(index);
+        }
+      });
+    });
   }
 
   /**
@@ -514,7 +824,7 @@ class Input extends ProcessorPlugin {
       case InputType.Pen:
         const state = this.pointerStates.set(event.pointerId, type, event.isPrimary);
         state.coordinates.set(event.pageX, event.pageY);
-        state.pointerButtonStates.set(event.button, ButtonState.Pressed);
+        state.buttonStates.set(event.button, ButtonState.Pressed);
         break;
       case InputType.Touch:
         const touchState = this.pointerStates.set(event.pointerId, type, event.isPrimary);
@@ -554,7 +864,7 @@ class Input extends ProcessorPlugin {
       case InputType.Mouse:
       case InputType.Pen:
         const state = this.pointerStates.set(event.pointerId, type, event.isPrimary);
-        state.pointerButtonStates.set(event.button, ButtonState.Released);
+        state.buttonStates.set(event.button, ButtonState.Released);
         break;
       case InputType.Touch:
         this.pointerStates.delete(event.pointerId);
@@ -570,7 +880,7 @@ class Input extends ProcessorPlugin {
     const type = Input.stringToInputMap.get(event.pointerType);
     if (type) {
       const state = this.pointerStates.set(event.pointerId, type, event.isPrimary);
-      state.pointerButtonStates.delete(event.button);
+      state.buttonStates.delete(event.button);
     }
   };
 
@@ -592,13 +902,29 @@ class Input extends ProcessorPlugin {
 
   /**
    * Handles the wheel/scroll event for a mouse or touchpad
-   * @param {WheelEvent} event
+   * @param {WheelEvent} event the wheel event
    */
   private onWheel = (event: WheelEvent): void => {
     event.preventDefault();
 
     this.mouseScrollDelta.set(event.deltaX, event.deltaY);
     this._mouseScrollDeltaMode = event.deltaMode;
+  };
+
+  /**
+   * Handles the gamepad connected window event
+   * @param {GamepadEvent} event the gamepad event
+   */
+  private onGamepadConnected = (event: GamepadEvent): void => {
+    this.gamepadStates.set(event.gamepad.id, event.gamepad.index, event.gamepad.timestamp);
+  };
+
+  /**
+   * Handles the gamepad disconnected window event
+   * @param {GamepadEvent} event the gamepad event
+   */
+  private onGamepadDisconnected = (event: GamepadEvent): void => {
+    this.gamepadStates.delete(event.gamepad.id);
   };
 }
 
