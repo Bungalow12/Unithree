@@ -5,14 +5,16 @@ import {
   Mesh,
   MeshStandardMaterial,
   PerspectiveCamera,
+  Vector2,
   Vector3,
 } from 'three';
 import Unithree from 'unithree';
 import Entity from 'unithree/dist/core/Entity';
-import Input, { XBoxButtonMapping } from 'unithree/dist/plugin/Input';
+import Input, { ThumbStick, XBoxButtonMapping } from 'unithree/dist/plugin/Input';
 import { ThirdPersonCameraController } from '../components';
 
 const reusableVector = new Vector3();
+const reusableVector2 = new Vector2();
 
 export class CharacterCapsule extends Entity {
   private static FORWARD = new Vector3(0, 0, -1);
@@ -62,7 +64,7 @@ export class CharacterCapsule extends Entity {
     const camera = this.controls.camera as PerspectiveCamera;
     this.rotation.y = camera.rotation.y; //new Euler().setFromQuaternion(camera.getWorldQuaternion(new Quaternion())).y;
 
-    const gamepad = this.input?.getGamepad(1) ?? null;
+    const gamepad = this.input?.getGamepad(0) ?? null;
 
     if (this.input?.getKeyDown('w') || gamepad?.getButtonDown(XBoxButtonMapping.Up)) {
       const pLocal = CharacterCapsule.FORWARD.clone();
@@ -86,6 +88,18 @@ export class CharacterCapsule extends Entity {
       this.position.addScaledVector(direction, CharacterCapsule.SPEED * deltaTime);
     } else if (this.input?.getKeyDown('d') || gamepad?.getButtonDown(XBoxButtonMapping.Right)) {
       const pLocal = CharacterCapsule.RIGHT.clone();
+      const pWorld = pLocal.applyMatrix4(camera.matrixWorld);
+      const direction = pWorld.sub(camera.getWorldPosition(reusableVector)).normalize();
+      direction.y = 0;
+      this.position.addScaledVector(direction, CharacterCapsule.SPEED * deltaTime);
+    }
+
+    if (gamepad) {
+      const value = gamepad.getThumbStickValue(ThumbStick.Left, reusableVector2);
+      value.x = Math.abs(value.x) < 0.17 ? 0 : value.x;
+      value.y = Math.abs(value.y) < 0.17 ? 0 : value.y;
+
+      const pLocal = new Vector3(value.x, 0, value.y);
       const pWorld = pLocal.applyMatrix4(camera.matrixWorld);
       const direction = pWorld.sub(camera.getWorldPosition(reusableVector)).normalize();
       direction.y = 0;

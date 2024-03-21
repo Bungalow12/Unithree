@@ -315,9 +315,11 @@ export class ThirdPersonCameraController extends CameraController<PerspectiveCam
   private handleGamepadInput = (deltaTime: number) => {
     if (!this._enabled) return;
 
-    const gamepad = this.input.getGamepad(1);
+    const gamepad = this.input.getGamepad(0);
     if (gamepad) {
       const value = gamepad.getThumbStickValue(ThumbStick.Right, reusableVector1);
+      value.x = Math.abs(value.x) < 0.17 ? 0 : value.x;
+      value.y = Math.abs(value.y) < 0.17 ? 0 : value.y;
       this.rotateLeft(value.x * deltaTime);
       this.rotateUp(value.y * deltaTime);
     }

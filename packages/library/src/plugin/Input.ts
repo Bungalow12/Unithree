@@ -396,6 +396,14 @@ export class GamepadState {
   }
 
   /**
+   * Shows whether the attached controller supports a standard mapping
+   * @returns {boolean}
+   */
+  public get hasStandardMapping(): boolean {
+    return navigator.getGamepads()[this.playerIndex]?.mapping === 'standard';
+  }
+
+  /**
    * Gets the map of button states
    * @returns {Map<number, ButtonState>} Map of button types to button states
    */
@@ -795,7 +803,7 @@ class Input extends ProcessorPlugin {
       const state = this.gamepadStates.set(gamepad.id, gamepad.index, gamepad.timestamp);
 
       // If this fails the timestamp is out of order and latest wins
-      if (state.lastUpdated !== gamepad.timestamp) return;
+      // if (state.lastUpdated !== gamepad.timestamp) return;
 
       gamepad.buttons.forEach((button, index) => {
         const previousState = state.buttonStates.get(index) ?? null;
@@ -804,7 +812,7 @@ class Input extends ProcessorPlugin {
           state.buttonStates.set(index, ButtonState.Pressed);
         } else if (previousState === ButtonState.Pressed && button.pressed) {
           state.buttonStates.set(index, ButtonState.Held);
-        } else if (previousState !== ButtonState.Released && !button.pressed) {
+        } else if (previousState && previousState !== ButtonState.Released && !button.pressed) {
           state.buttonStates.set(index, ButtonState.Released);
         } else if (previousState === ButtonState.Released && !button.pressed) {
           state.buttonStates.delete(index);
@@ -925,7 +933,18 @@ class Input extends ProcessorPlugin {
    * @param {GamepadEvent} event the gamepad event
    */
   private onGamepadConnected = (event: GamepadEvent): void => {
-    this.gamepadStates.set(event.gamepad.id, event.gamepad.index, event.gamepad.timestamp);
+    const state = this.gamepadStates.set(event.gamepad.id, event.gamepad.index, event.gamepad.timestamp);
+
+    if (event.gamepad.mapping !== 'standard') {
+      console.warn('Connected gamepad %s does not support standard mapping', event.gamepad.id);
+    }
+
+    console.log(
+      'Gamepad connected with %d button and %d axes as player %d',
+      state.totalButtons,
+      state.totalAxes,
+      state.playerIndex + 1,
+    );
   };
 
   /**
