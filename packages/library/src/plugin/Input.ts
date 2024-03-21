@@ -419,8 +419,8 @@ export class GamepadState {
    * @returns {Vector2} the Vector2 representing the thumb stick values
    */
   public getThumbStickValue = (stick: ThumbStick, out?: Vector2): Vector2 => {
-    const y = navigator.getGamepads()[this.playerIndex]?.axes[stick] ?? 0;
-    const x = navigator.getGamepads()[this.playerIndex]?.axes[stick + 1] ?? 0;
+    const x = navigator.getGamepads()[this.playerIndex]?.axes[stick] ?? 0;
+    const y = navigator.getGamepads()[this.playerIndex]?.axes[stick + 1] ?? 0;
     return out ? out.set(x, y) : new Vector2(x, y);
   };
 
