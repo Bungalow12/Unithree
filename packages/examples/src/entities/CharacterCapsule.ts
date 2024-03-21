@@ -9,7 +9,7 @@ import {
 } from 'three';
 import Unithree from 'unithree';
 import Entity from 'unithree/dist/core/Entity';
-import Input from 'unithree/dist/plugin/Input';
+import Input, { XBoxButtonMapping } from 'unithree/dist/plugin/Input';
 import { ThirdPersonCameraController } from '../components';
 
 const reusableVector = new Vector3();
@@ -62,13 +62,15 @@ export class CharacterCapsule extends Entity {
     const camera = this.controls.camera as PerspectiveCamera;
     this.rotation.y = camera.rotation.y; //new Euler().setFromQuaternion(camera.getWorldQuaternion(new Quaternion())).y;
 
-    if (this.input?.getKeyDown('w')) {
+    const gamepad = this.input?.getGamepad(1) ?? null;
+
+    if (this.input?.getKeyDown('w') || gamepad?.getButtonDown(XBoxButtonMapping.Up)) {
       const pLocal = CharacterCapsule.FORWARD.clone();
       const pWorld = pLocal.applyMatrix4(camera.matrixWorld);
       const direction = pWorld.sub(camera.getWorldPosition(reusableVector)).normalize();
       direction.y = 0;
       this.position.addScaledVector(direction, CharacterCapsule.SPEED * deltaTime);
-    } else if (this.input?.getKeyDown('s')) {
+    } else if (this.input?.getKeyDown('s') || gamepad?.getButtonDown(XBoxButtonMapping.Down)) {
       const pLocal = CharacterCapsule.BACK.clone();
       const pWorld = pLocal.applyMatrix4(camera.matrixWorld);
       const direction = pWorld.sub(camera.getWorldPosition(reusableVector)).normalize();
@@ -76,13 +78,13 @@ export class CharacterCapsule extends Entity {
       this.position.addScaledVector(direction, CharacterCapsule.SPEED * deltaTime);
     }
 
-    if (this.input?.getKeyDown('a')) {
+    if (this.input?.getKeyDown('a') || gamepad?.getButtonDown(XBoxButtonMapping.Left)) {
       const pLocal = CharacterCapsule.LEFT.clone();
       const pWorld = pLocal.applyMatrix4(camera.matrixWorld);
       const direction = pWorld.sub(camera.getWorldPosition(reusableVector)).normalize();
       direction.y = 0;
       this.position.addScaledVector(direction, CharacterCapsule.SPEED * deltaTime);
-    } else if (this.input?.getKeyDown('d')) {
+    } else if (this.input?.getKeyDown('d') || gamepad?.getButtonDown(XBoxButtonMapping.Right)) {
       const pLocal = CharacterCapsule.RIGHT.clone();
       const pWorld = pLocal.applyMatrix4(camera.matrixWorld);
       const direction = pWorld.sub(camera.getWorldPosition(reusableVector)).normalize();

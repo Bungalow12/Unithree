@@ -1,6 +1,6 @@
 import { Box3, Object3D, PerspectiveCamera, Plane, Quaternion, Ray, Spherical, Vector2, Vector3 } from 'three';
 import { CameraController } from './CameraController';
-import Input, { InputType, PointerButton, PointerState } from 'unithree/dist/plugin/Input';
+import Input, { InputType, PointerButton, PointerState, ThumbStick } from 'unithree/dist/plugin/Input';
 
 // Reused for optimization
 const _ray = new Ray();
@@ -77,7 +77,6 @@ export class ThirdPersonCameraController extends CameraController<PerspectiveCam
   public zoomSpeed = 1.0;
 
   // Set to false to disable rotating
-  public enableRotate = true;
   public rotateSpeed = 1.0;
   public keyRotateSpeed = 0.01 * Math.PI; // pixels moved per arrow key push
 
@@ -117,7 +116,7 @@ export class ThirdPersonCameraController extends CameraController<PerspectiveCam
     this.onUpdate = this.onUpdate.bind(this);
   }
 
-  public onUpdate(): void {
+  public onUpdate(deltaTime: number): void {
     const offset = new Vector3();
     const up = new Vector3(0, 1, 0);
 
@@ -135,6 +134,7 @@ export class ThirdPersonCameraController extends CameraController<PerspectiveCam
     this.handlePointerInput();
     this.handleMouseWheelInput();
     this.handleKeyboardInput();
+    this.handleGamepadInput(deltaTime);
 
     // REFERENCE: The following code comes from the OrbitControls from ThreeStdLib
     //   https://github.com/pmndrs/three-stdlib/blob/main/src/controls/OrbitControls.ts#L203-L395
@@ -297,7 +297,7 @@ export class ThirdPersonCameraController extends CameraController<PerspectiveCam
   };
 
   private handleKeyboardInput = () => {
-    if (!this._enabled || !this.enableRotate || !this.keys) return;
+    if (!this._enabled || !this.keys) return;
 
     if (this.input.getKeyDown(this.keys.Up)) {
       this.rotateUp(this.keyRotateSpeed);
@@ -309,6 +309,17 @@ export class ThirdPersonCameraController extends CameraController<PerspectiveCam
       this.rotateLeft(this.keyRotateSpeed);
     } else if (this.input.getKeyDown(this.keys.Right)) {
       this.rotateLeft(-this.keyRotateSpeed);
+    }
+  };
+
+  private handleGamepadInput = (deltaTime: number) => {
+    if (!this._enabled) return;
+
+    const gamepad = this.input.getGamepad(1);
+    if (gamepad) {
+      const value = gamepad.getThumbStickValue(ThumbStick.Right, reusableVector1);
+      this.rotateLeft(value.x * deltaTime);
+      this.rotateUp(value.y * deltaTime);
     }
   };
 

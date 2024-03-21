@@ -32,8 +32,8 @@ export enum InputType {
  * Gamepad Thumb Sticks
  */
 export enum ThumbStick {
-  Left,
-  Right,
+  Left = 0,
+  Right = 2,
 }
 
 /**
@@ -431,6 +431,15 @@ export class GamepadState {
    */
   public getButtonTouchedState = (button: number): boolean => {
     return navigator.getGamepads()[this.playerIndex]?.buttons[button].touched ?? false;
+  };
+
+  /**
+   * Gets the value of a specific button
+   * @param {number} button the button index
+   * @returns {number} value from 0.0 to 1.0
+   */
+  public getButtonValue = (button: number): number => {
+    return navigator.getGamepads()[this.playerIndex]?.buttons[button].value ?? 0;
   };
 
   /**
