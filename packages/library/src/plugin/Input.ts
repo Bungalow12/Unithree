@@ -803,7 +803,7 @@ class Input extends ProcessorPlugin {
       const state = this.gamepadStates.set(gamepad.id, gamepad.index, gamepad.timestamp);
 
       // If this fails the timestamp is out of order and latest wins
-      // if (state.lastUpdated !== gamepad.timestamp) return;
+      if (state.lastUpdated !== gamepad.timestamp) return;
 
       gamepad.buttons.forEach((button, index) => {
         const previousState = state.buttonStates.get(index) ?? null;
