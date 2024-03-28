@@ -1,11 +1,11 @@
-import ProcessorPlugin, { ExecutionType } from 'unithree/dist/core/ProcessorPlugin';
+import ProcessorPlugin from 'unithree/dist/core/ProcessorPlugin';
 import Unithree from 'unithree';
 import { CameraController } from '../components';
 import { Camera } from 'three';
 
 class CameraControllerPlugin extends ProcessorPlugin {
   constructor() {
-    super(ExecutionType.Always);
+    super();
   }
 
   public update(deltaTime: number, isPaused: boolean): void {

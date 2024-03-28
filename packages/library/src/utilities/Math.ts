@@ -2,7 +2,7 @@ import { Spherical, Vector3 } from 'three';
 
 export const EPSILON = 1e-5;
 export const PI_2 = Math.PI * 2;
-export const PI_Half = Math.PI / 2;
+export const PI_HALF = Math.PI / 2;
 export const FPS_60 = 1 / 0.016;
 export const ORIGIN = Object.freeze(new Vector3(0, 0, 0));
 export const AXIS_X = Object.freeze(new Vector3(1, 0, 0));

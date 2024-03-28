@@ -1,5 +1,5 @@
 import { Vector2 } from 'three';
-import ProcessorPlugin, { ExecutionType } from '../core/ProcessorPlugin';
+import ProcessorPlugin from '../core/ProcessorPlugin';
 
 /**
  * The state of the button
@@ -585,7 +585,7 @@ class Input extends ProcessorPlugin {
   protected _mouseScrollDeltaMode = 0;
 
   constructor(domElement: HTMLCanvasElement) {
-    super(ExecutionType.Always);
+    super();
     this.domElement = domElement;
     this.updateGamepadStates = this.updateGamepadStates.bind(this);
   }

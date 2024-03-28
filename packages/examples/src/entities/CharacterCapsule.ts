@@ -40,7 +40,7 @@ export class CharacterCapsule extends Entity {
     const camera = Unithree.getCamera() as PerspectiveCamera;
     const domElement = Unithree.getRenderer().domElement;
     this.controls = new ThirdPersonCameraController(camera, domElement, input);
-    this.addComponent(this.controls);
+    this.addComponents(this.controls);
   }
 
   private createOrbitControls = () => {

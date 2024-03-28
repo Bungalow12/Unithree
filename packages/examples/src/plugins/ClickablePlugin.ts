@@ -1,6 +1,6 @@
 import { Object3D, Raycaster, Vector2 } from 'three';
 import { ColorChangeClickableComponent } from '../components';
-import ProcessorPlugin, { ExecutionType } from 'unithree/dist/core/ProcessorPlugin';
+import ProcessorPlugin from 'unithree/dist/core/ProcessorPlugin';
 import Unithree from 'unithree';
 import Entity from 'unithree/dist/core/Entity';
 
@@ -9,7 +9,7 @@ import Entity from 'unithree/dist/core/Entity';
  */
 export class ClickablePlugin extends ProcessorPlugin {
   constructor() {
-    super(ExecutionType.InitializeOnly);
+    super();
   }
 
   private onClick = (event: MouseEvent) => {

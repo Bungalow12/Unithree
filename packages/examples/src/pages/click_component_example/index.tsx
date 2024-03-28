@@ -28,7 +28,7 @@ const ClickComponentExample = (): React.ReactElement => {
 
     // Add a Color Change Clickable Component to change the color on click
     const clickableComponent = new ColorChangeClickableComponent(cube);
-    cube.addComponent(clickableComponent);
+    cube.addComponents(clickableComponent);
 
     sceneLoadedRef.current = true;
     Unithree.instantiateObject(cube);

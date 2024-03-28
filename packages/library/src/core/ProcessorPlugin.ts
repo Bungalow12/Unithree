@@ -1,24 +1,13 @@
 /**
- * The type of execution for a plugin
- */
-export enum ExecutionType {
-  InitializeOnly,
-  Always,
-}
-
-/**
  * The Base Plugin for Unithree.
  * Plugins are designed to extend the functionality of the base processing loop.
  * These can be used as standalone additions, Library functionality, and to process custom component types
  */
 class ProcessorPlugin {
-  public executionType: ExecutionType;
   public enabled = true;
   public initialized = false;
 
-  constructor(executionType: ExecutionType) {
-    this.executionType = executionType;
-
+  constructor() {
     this.initialize = this.initialize.bind(this);
     this.update = this.update.bind(this);
     this.lateUpdate = this.lateUpdate.bind(this);

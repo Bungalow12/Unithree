@@ -88,7 +88,7 @@ class Entity extends Object3D {
    * @param {Component} components the list of components
    * @returns {this} this object for chaining
    */
-  public addComponent = (...components: Component[]): this => {
+  public addComponents = (...components: Component[]): this => {
     this._components.push(...components);
     return this;
   };
