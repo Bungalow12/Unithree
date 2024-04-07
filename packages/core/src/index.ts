@@ -1,5 +1,5 @@
-import Entity from './core/Entity';
-import ProcessorPlugin from './core/ProcessorPlugin';
+import Entity from './Entity';
+import ProcessorPlugin from './ProcessorPlugin';
 import { Camera, Clock, Object3D, PerspectiveCamera, Scene, WebGLRenderer } from 'three';
 
 /**

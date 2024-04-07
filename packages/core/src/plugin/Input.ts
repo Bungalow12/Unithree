@@ -1,5 +1,5 @@
 import { Vector2 } from 'three';
-import ProcessorPlugin from '../core/ProcessorPlugin';
+import ProcessorPlugin from '../ProcessorPlugin';
 
 /**
  * The state of the button

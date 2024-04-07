@@ -1,5 +1,5 @@
 {
-  "name": "unithree",
+  "name": "@unithree/core",
   "version": "0.2.0",
   "description": "Unity3D inspired ThreeJS framework",
   "private": true,
