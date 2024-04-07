@@ -1,5 +1,5 @@
 {
-  "name": "unithree-examples",
+  "name": "@unithree/examples",
   "version": "0.2.0",
   "description": "Examples for the Unithree framework",
   "private": true,
@@ -13,7 +13,7 @@
     "react-router-dom": "^6.22.1",
     "three": "^0.155.0",
     "three-stdlib": "^2.29.4",
-    "unithree": "*"
+    "@unithree/core": "*"
   },
   "devDependencies": {
     "@types/jest": "^26.0.20",

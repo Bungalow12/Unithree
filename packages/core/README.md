@@ -33,6 +33,7 @@ WebGL rendering engines.
 
 *The state maintains the scene, active camera, and renderer elements. It is responsible for calling the core events for
 `Entity` and `ProcessorPlugin` types.*
+
 ---
 
 * `initialize` - Initializes the Unithree state clearing anything previously in the state. This takes optional camera
@@ -65,6 +66,7 @@ WebGL rendering engines.
 ##### Processor Plugin
 
 *Meant to extend the functionality of the core render loop. These are also used to process custom `Component` objects.*
+
 ---
 
 * `enabled` - A flag determining whether the plugin is enabled.
@@ -79,6 +81,7 @@ WebGL rendering engines.
 ##### Entity
 
 *Extending `Object3D` this object provides state-based events and allows them to attach `Component` objects*
+
 ---
 
 * `didStart` - A flag representing whether the `Entity` has started.
@@ -99,9 +102,13 @@ by a `ProcessorPlugin`. An `Entity` does **NOT** know nor assume it has any `Com
 
 ##### Input Plugin
 
+*Plugin that provides an easy way to process input without setting up your own input handlers. The `Input` plugin
+provides support for Keyboard, Mouse, Pen, Touch, and Gamepads*
+
 ##### Math Utility Functions
 
 *Small set of Utility functions related to Math*
+
 ---
 
 * `EPSILON` - A value of 10<sup>-5</sup>.

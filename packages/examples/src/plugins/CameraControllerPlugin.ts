@@ -1,5 +1,5 @@
-import ProcessorPlugin from 'unithree/dist/core/ProcessorPlugin';
-import Unithree from 'unithree';
+import ProcessorPlugin from '@unithree/core/dist/ProcessorPlugin';
+import Unithree from '@unithree/core';
 import { CameraController } from '../components';
 import { Camera } from 'three';
 

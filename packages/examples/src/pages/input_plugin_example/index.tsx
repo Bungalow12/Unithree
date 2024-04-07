@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react';
 import * as THREE from 'three';
 import { InputSphere } from '../../entities';
-import Unithree from 'unithree';
-import Input from 'unithree/dist/plugin/Input';
+import Unithree from '@unithree/core/dist/';
+import Input from '@unithree/core/dist/plugin/Input';
 
 const InputPluginExample = (): React.ReactElement => {
   useEffect(() => {

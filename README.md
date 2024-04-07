@@ -29,4 +29,5 @@ The place to find examples for all Unithree packages.
 * Unity 3D editor plugin for scene editing
 * Physics `ProcessorPlugin` and `component` library
 * Loader library. Scenes, models, etc...
+* Input Mapping system
 * More TBD

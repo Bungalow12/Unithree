@@ -1,8 +1,8 @@
 import { Object3D, Raycaster, Vector2 } from 'three';
 import { ColorChangeClickableComponent } from '../components';
-import ProcessorPlugin from 'unithree/dist/core/ProcessorPlugin';
-import Unithree from 'unithree';
-import Entity from 'unithree/dist/core/Entity';
+import Unithree from '@unithree/core';
+import ProcessorPlugin from '@unithree/core/dist/ProcessorPlugin';
+import Entity from '@unithree/core/dist/Entity';
 
 /**
  * Sets up a click event to handle all components with the ColorChangeClickableComponent

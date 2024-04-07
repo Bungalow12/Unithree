@@ -1,6 +1,6 @@
 import { Box3, Object3D, PerspectiveCamera, Plane, Quaternion, Ray, Spherical, Vector2, Vector3 } from 'three';
 import { CameraController } from './CameraController';
-import Input, { InputType, PointerButton, PointerState, ThumbStick } from 'unithree/dist/plugin/Input';
+import Input, { InputType, PointerButton, PointerState, ThumbStick } from '@unithree/core/dist/plugin/Input';
 
 // Reused for optimization
 const _ray = new Ray();

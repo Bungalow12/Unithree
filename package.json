@@ -2,7 +2,7 @@
   "name": "unithree-framework",
   "version": "0.2.0",
   "description": "Unity3D inspired ThreeJS framework",
-  "main": "packages/library/dist/App.js",
+  "main": "packages/core/dist/App.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
