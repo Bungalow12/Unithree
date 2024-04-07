@@ -35,45 +35,45 @@ WebGL rendering engines.
 `Entity` and `ProcessorPlugin` types.*
 ---
 
-* **initialize** - Initializes the Unithree state clearing anything previously in the state. This takes optional camera
+* `initialize` - Initializes the Unithree state clearing anything previously in the state. This takes optional camera
   camera and renderer options returning the HTML Canvas Element. By default, a new `PerspectiveCamera` and a
   `WebGlRenderer` will be created.
-* **start** - Starts the frame loop.
-* **stop** - Stops the frame loop.
-* **isPaused** - This property gets and sets the paused state of the system. This is reported to every
+* `start` - Starts the frame loop.
+* `stop` - Stops the frame loop.
+* `isPaused` - This property gets and sets the paused state of the system. This is reported to every
   `ProcessorPlugin` and `Entity`.
-* **addPlugin** - Adds 1 or more `ProcessorPlugin` objects into the system.
-* **clearPlugins** - Clears all plugins added to the system. This will call dispose on all plugins.
-* **getPluginByTypeName** - Looks for a plugin by the name of the class (e.g. "Input") and will return it or null if
+* `addPlugin` - Adds 1 or more `ProcessorPlugin` objects into the system.
+* `clearPlugins` - Clears all plugins added to the system. This will call dispose on all plugins.
+* `getPluginByTypeName` - Looks for a plugin by the name of the class (e.g. "Input") and will return it or null if
   the requested plugin was not found.
-* **getScene** - Gets the scene containing all **ThreeJS** objects including `Entity` objects. *(Do **NOT** perform
+* `getScene` - Gets the scene containing all `ThreeJS` objects including `Entity` objects. *(Do **NOT** perform
   scene
   management here. Object lifecycle should be handled by the state. See `instantiateObject` and `Entity.destroy`)*
-* **getCamera** - Gets the active camera of the system.
-* **setCamera** - Sets the active camera of the system.
-* **getRenderer** - Gets the current renderer.
-* **getClock** - Gets the clock maintained by the system. **NOTE: the time is given to all update events so this is not
-  recommended for direct use.
-* **instantiateObject** - Creates a new object and adds it to the scene root or optional `Object3D` or `Entity`.
-* **findObjectByName** - Finds the first object or `Entity` that has a matching name in the scene hierarchy.
-* **findObjectsByName** - Finds the all objects or entities that have a matching name in the scene hierarchy.
-* **findEntityByName** - Finds the first `Entity` that has a matching name in the scene hierarchy.
-* **findEntitiesByName** - Finds the all `Entity` objects that have a matching name in the scene hierarchy.
-* **getEntities** - Gets a list of all `Entity` objects tracked by the system.
-* **dispose** - Stops and cleans up the system ensuring dispose id called on all `Entity` and `ProcessorPlugin` objects.
+* `getCamera` - Gets the active camera of the system.
+* `setCamera` - Sets the active camera of the system.
+* `getRenderer` - Gets the current renderer.
+* `getClock` - Gets the clock maintained by the system. **NOTE: the time is given to all update events so this is not
+  recommended for direct use**
+* `instantiateObject` - Creates a new object and adds it to the scene root or optional `Object3D` or `Entity`.
+* `findObjectByName` - Finds the first object or `Entity` that has a matching name in the scene hierarchy.
+* `findObjectsByName` - Finds the all objects or entities that have a matching name in the scene hierarchy.
+* `findEntityByName` - Finds the first `Entity` that has a matching name in the scene hierarchy.
+* `findEntitiesByName` - Finds the all `Entity` objects that have a matching name in the scene hierarchy.
+* `getEntities` - Gets a list of all `Entity` objects tracked by the system.
+* `dispose` - Stops and cleans up the system ensuring dispose id called on all `Entity` and `ProcessorPlugin` objects.
 
 ##### Processor Plugin
 
 *Meant to extend the functionality of the core render loop. These are also used to process custom `Component` objects.*
 ---
 
-* **enabled** - A flag determining whether the plugin is enabled.
-* **initialized** - A flag representing whether the plugin has initialized.
-* **initialize** - Executed one time when the plugin starts. *This will NOT occur unless the state has been
+* `enabled` - A flag determining whether the plugin is enabled.
+* `initialized` - A flag representing whether the plugin has initialized.
+* `initialize` - Executed one time when the plugin starts. *This will NOT occur unless the state has been
   initialized and started.*
-* **update** - Executed once per frame.
-* **lateUpdate** - Executed after all `ProcessorPlugin` and `Entity` object updates.
-* **dispose** - Executed when the system state shutdown has been requested. Use this for clean up of itself and any   
+* `update` - Executed once per frame.
+* `lateUpdate` - Executed after all `ProcessorPlugin` and `Entity` object updates.
+* `dispose` - Executed when the system state shutdown has been requested. Use this for clean up of itself and any   
   controlled `Component` objects if they need it.
 
 ##### Entity
