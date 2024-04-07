@@ -4,8 +4,7 @@
 
 A 3D framework built on the highly performant [ThreeJS](https://threejs.org/) with the intention of being easy to pickup
 for users of [Unity 3D](https://unity.com). This is not a recreation of Unity 3D but a highly extensible framework
-inspired
-by it and entity/component models.
+inspired by it and entity/component models.
 
 ## Documentation
 
@@ -121,9 +120,32 @@ by a `ProcessorPlugin`. An `Entity` does **NOT** know nor assume it has any `Com
 
 ### Unity 3D to Unithree Concepts
 
+Below is a quick guide to aid those familiar with `Unity 3D` concepts make the connection to similar concepts in
+Unithree.
+
 #### Prefabs and Scripts
+
+Since a prefab is an easily instantiated preconfigured game object, with set values, children, components, etc...
+the best way to replicate this is making a new class and extending the `Entity` class. In this new class, you
+would create and add children and components in the constructor so that these objects are always associated.
+
+As for adding custom scripting, such as adding a `MonoBehaviour`, the custom new `Entity` class can have the
+behaviors built into it.
 
 #### Components
 
+In `Unity 3D` adding a component extends the game object adding new functionality, such as adding physics,
+collision data, and more allowing for the system to perform extra handling on the object. In Unithree components
+work the same way. They however, require a `ProcessorPlugin` or implementation within an `Entity` to cause them to
+be executed by the core system. A `ProcessorPlugin` is the preferred implementation as this makes the component work
+the same across all `Entity` objects versus just a specific class and its inheritors, but sometimes this may be the
+best option.
+
 #### Object Lifecycle Management
 
+In `Unity 3D` the only way to instantiate an object into the scene via code was to use the `Object.Instantiate`
+method and to destroy was calling an objects `Object.Destroy` method. Similarly, this is how we handle things in
+Unithree. Using the Unithree state's `instantiateObject` and the `destroy` method on the Entity objects.
+If you do not use this lifecycle for `Entity` based objects the `Entity` may not be processed. All standard `ThreeJS`
+objects can be added and removed however you see fit. **WARNING**: If a standard `ThreeJS` object has a child `Entity`
+not using the built-in lifecycle management functions you can have undesired behavior.
