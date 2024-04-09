@@ -105,6 +105,69 @@ by a `ProcessorPlugin`. An `Entity` does **NOT** know nor assume it has any `Com
 *Plugin that provides an easy way to process input without setting up your own input handlers. The `Input` plugin
 provides support for Keyboard, Mouse, Pen, Touch, and Gamepads*
 
+---
+
+###### Input
+
+* `getPointerCoordinates` - Get the specified pointer coordinates in reference to the window
+* `getPointerDelta` - Gets the pointer coordinate delta since last frame
+* `getPrimaryPointerState` - Gets the primary pointer state object for the specified input type
+* `getPointerStates` - Gets a list of pointer states for the given input type
+* `touchCount` - Gets the number of touches currently active in the system
+* `getMouseScrollDelta` - Gets the delta of the mouse scroll wheel since last frame
+* `mouseScrollDeltaMode` - Gets the mode of the scroll wheel
+* `getGamepad` - Gets the gamepad state object for the specified player index
+* `getGamepads` - Gets the active gamepad state objects
+* `getKeyHeld` - True if the key has been held but not pressed this frame
+* `getKeyPressed` - True if the key has been pressed this frame
+* `getKeyDown` - True if the key was pressed or is being held
+* `getKeyUp` - True if the key was released this frame
+
+###### Pointer State
+
+* `type` - The type of the input
+* `isPrimary` - True if the pointer is the primary pointer of its type
+* `coordinates` - The pointer's coordinates in reference to the window
+* `delta` - The pointer's coordinate delta this frame
+* `buttonStates` - Map of pointer buttons to state
+* `getButtonState` - Gets the state of the specific pointer button
+* `setButtonState` - Sets the state of the specific pointer button
+* `getButtonHeld` - True if the button is held but has not been pressed this frame
+* `getButtonPressed` - True if the button is pressed this frame
+* `getButtonDown` - True if the button was pressed or is held
+* `getButtonUp` - True if the button was released this frame
+
+###### Gamepad State
+
+* `playerIndex` - The index for which player the gamepad is associated with
+* `lastUpdated` - The timestamp of the most recent update
+* `totalAxes` - The number of axes available on the gamepad
+* `totalButtons` - The number of buttons available on the gamepad
+* `hasStandardMapping` - Whether or not standard mappings are supported. (This is commonly PlayStation and XBox
+  controllers)
+* `buttonStates` - Gets a map of buttons to state
+* `getAxis` - Gets the axis value from -1 to 1 of the specified axis
+* `getThumbstickValue` - Gets a `Vector2` of the thumb stick on a standard gamepad
+* `getButtonTouchedState` - Gets the state foa button if it is being touched (capacitive buttons only otherwise it
+  matches button state)
+* `getButtonValue` - Gets the value of the specified button between 0 and 1
+* `getButtonState` - Gets the state of the specified button
+* `setButtonState` - Sets the state of the specified button
+* `getButtonHeld` - True if the button is being held but eas not pressed this frame
+* `getButtonPressed` - True if the button was pressed this frame
+* `getButtonDown` - True if the button was pressed or is being held
+* `getButtonUp` - True if the button was released this frame
+
+###### Misc
+
+* `ButtonState` - Pressed, Held or Released
+* `PointerButton` - Primary, Secondary or Auxiliary
+* `InputType` - Mouse, Pen or Touch
+* `ThumbStick` - Left or Right (Used for standard controllers)
+* `PlaystationButtonMapping` - Mapping for a PlayStation controller
+* `XBoxButtonMapping`- Mapping for an XBox controller
+* `SwitchButtonMapping` - Mapping for a Nintendo Switch Controller
+
 ##### Math Utility Functions
 
 *Small set of Utility functions related to Math*
