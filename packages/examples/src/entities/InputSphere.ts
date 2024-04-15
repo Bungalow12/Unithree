@@ -1,7 +1,7 @@
 import { ColorRepresentation, Mesh, MeshStandardMaterial, SphereGeometry } from 'three';
-import Unithree from '@unithree/core';
-import Entity from '@unithree/core/dist/Entity';
-import Input from '@unithree/core/dist/plugin/Input';
+import Unithree from '@unithree/core/State';
+import Entity from '@unithree/core/Entity';
+import Input from '@unithree/core/plugin/Input';
 
 export class InputSphere extends Entity {
   private input: Input | null = null;

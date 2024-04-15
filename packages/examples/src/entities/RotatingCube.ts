@@ -1,5 +1,5 @@
 import { BoxGeometry, ColorRepresentation, Mesh, MeshStandardMaterial } from 'three';
-import Entity from '@unithree/core/dist/Entity';
+import Entity from '@unithree/core/Entity';
 
 export class RotatingCube extends Entity {
   constructor(color: ColorRepresentation = 0x00ff00) {

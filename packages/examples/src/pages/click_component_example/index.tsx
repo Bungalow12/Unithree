@@ -4,7 +4,7 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three-stdlib';
 import { ClickablePlugin } from '../../plugins';
 import { ColorChangeClickableComponent } from '../../components';
-import Unithree from '@unithree/core';
+import Unithree from '@unithree/core/State';
 
 const ClickComponentExample = (): React.ReactElement => {
   const sceneLoadedRef = useRef<boolean>(false);

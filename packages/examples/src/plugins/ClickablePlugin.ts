@@ -1,8 +1,9 @@
 import { Object3D, Raycaster, Vector2 } from 'three';
 import { ColorChangeClickableComponent } from '../components';
-import Unithree from '@unithree/core';
-import ProcessorPlugin from '@unithree/core/dist/ProcessorPlugin';
-import Entity from '@unithree/core/dist/Entity';
+import Unithree from '@unithree/core/State';
+import ProcessorPlugin from '@unithree/core/ProcessorPlugin';
+import Entity from '@unithree/core/Entity';
+import Component from '@unithree/core/Component';
 
 /**
  * Sets up a click event to handle all components with the ColorChangeClickableComponent
@@ -16,10 +17,10 @@ export class ClickablePlugin extends ProcessorPlugin {
     // Get all Entities from the scene with ColorChangeClickableComponent attached
     const scene = Unithree.getScene();
     const clickableEntities: Entity[] = [];
-    scene.traverse((object) => {
+    scene.traverse((object: Object3D) => {
       if (object instanceof Entity) {
         const entity = object as Entity;
-        entity.components.forEach((component) => {
+        entity.components.forEach((component: Component) => {
           if (component instanceof ColorChangeClickableComponent) {
             clickableEntities.push(component.entity);
           }

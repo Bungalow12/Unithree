@@ -8,9 +8,9 @@ import {
   Vector2,
   Vector3,
 } from 'three';
-import Unithree from '@unithree/core';
-import Entity from '@unithree/core/dist/Entity';
-import Input, { ThumbStick, XBoxButtonMapping } from '@unithree/core/dist/plugin/Input';
+import Unithree from '@unithree/core/State';
+import Entity from '@unithree/core/Entity';
+import Input, { ThumbStick, XBoxButtonMapping } from '@unithree/core/plugin/Input';
 import { ThirdPersonCameraController } from '../components';
 
 const reusableVector = new Vector3();

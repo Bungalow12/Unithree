@@ -2,8 +2,8 @@ import React, { useEffect } from 'react';
 import * as THREE from 'three';
 import { PerspectiveCamera } from 'three';
 import { CharacterCapsule } from '../../entities';
-import Unithree from '@unithree/core';
-import Input from '@unithree/core/dist/plugin/Input';
+import Unithree from '@unithree/core/State';
+import Input from '@unithree/core/plugin/Input';
 import CameraControllerPlugin from '../../plugins/CameraControllerPlugin';
 
 const CustomCameraExample = (): React.ReactElement => {

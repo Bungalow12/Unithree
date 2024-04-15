@@ -3,10 +3,16 @@
   "version": "0.2.0",
   "description": "Unity3D inspired ThreeJS framework",
   "private": true,
-  "main": "./dist/index.js",
   "files": [
-    "dist"
+    "./dist/"
   ],
+  "typesVersions": {
+    "*": {
+      "*": [
+        "./dist/*"
+      ]
+    }
+  },
   "dependencies": {
     "three": "^0.155.0"
   },
