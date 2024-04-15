@@ -8,7 +8,6 @@
     "dist"
   ],
   "dependencies": {
-    "save-dev": "^0.0.1-security",
     "three": "^0.155.0"
   },
   "devDependencies": {
