@@ -1,10 +1,12 @@
 name: Build on Pull Request
 
 on:
-  pull_request_review:
+  pull_request:
     types:
-      - submitted
+      - opened
+      - reopened
       - edited
+      - synchronize
 
 
 jobs:

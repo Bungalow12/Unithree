@@ -37,7 +37,7 @@
   },
   "scripts": {
     "start": "vite",
-    "build": "vite build",
+    "build": "tsc && vite build",
     "serve": "vite preview",
     "compile": "tsc",
     "compile-watch": "tsc --watch",
