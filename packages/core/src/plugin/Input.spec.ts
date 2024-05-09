@@ -1,10 +1,11 @@
-import Unithree from '../';
 import Input from './Input';
+
+jest.mock('three');
 
 describe('Input', () => {
   test('Placeholder', () => {
     // TODO: Add the tests for Input asap
-    Unithree.initialize();
-    const input = new Input(Unithree.getRenderer().domElement);
+    const domElement = document.createElement('canvas');
+    const input = new Input(domElement);
   });
 });
