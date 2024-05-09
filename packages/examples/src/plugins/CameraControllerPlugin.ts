@@ -1,5 +1,5 @@
 import ProcessorPlugin from '@unithree/core/ProcessorPlugin';
-import Unithree from '@unithree/core/State';
+import Unithree from '@unithree/core';
 import { CameraController } from '../components';
 import { Camera } from 'three';
 import Entity from '@unithree/core/Entity';

@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { RotatingCube } from '../../entities';
 import { OrbitControls } from 'three-stdlib';
-import Unithree from '@unithree/core/State';
+import Unithree from '@unithree/core';
 import { AmbientLight, PerspectiveCamera, PointLight, SpotLight, WebGLRenderer } from 'three';
 
 const BasicEntityExample = (): React.ReactElement => {

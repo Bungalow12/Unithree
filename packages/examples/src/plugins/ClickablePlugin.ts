@@ -1,6 +1,6 @@
 import { Object3D, Raycaster, Vector2 } from 'three';
 import { ColorChangeClickableComponent } from '../components';
-import Unithree from '@unithree/core/State';
+import Unithree from '@unithree/core';
 import ProcessorPlugin from '@unithree/core/ProcessorPlugin';
 import Entity from '@unithree/core/Entity';
 import Component from '@unithree/core/Component';

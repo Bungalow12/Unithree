@@ -8,7 +8,7 @@ import {
   Vector2,
   Vector3,
 } from 'three';
-import Unithree from '@unithree/core/State';
+import Unithree from '@unithree/core';
 import Entity from '@unithree/core/Entity';
 import Input, { ThumbStick, XBoxButtonMapping } from '@unithree/core/plugin/Input';
 import { ThirdPersonCameraController } from '../components';

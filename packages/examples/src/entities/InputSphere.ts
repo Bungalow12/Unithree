@@ -1,5 +1,5 @@
 import { ColorRepresentation, Mesh, MeshStandardMaterial, SphereGeometry } from 'three';
-import Unithree from '@unithree/core/State';
+import Unithree from '@unithree/core';
 import Entity from '@unithree/core/Entity';
 import Input from '@unithree/core/plugin/Input';
 
