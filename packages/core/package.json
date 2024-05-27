@@ -1,18 +1,47 @@
 {
   "name": "@unithree/core",
-  "version": "0.2.0",
+  "version": "1.0.0",
   "description": "Unity3D inspired ThreeJS framework",
-  "private": true,
   "files": [
     "./dist/"
   ],
   "exports": {
-    ".": "./dist/index.js",
-    "./Component": "./dist/Component",
-    "./Entity": "./dist/Entity",
-    "./ProcessorPlugin": "./dist/ProcessorPlugin",
-    "./plugin/Input": "./dist/plugin/Input",
-    "./utilities/Math": "./dist/utilities/Math"
+    ".": {
+      "require": "./dist/cjs/index.js",
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./Component": {
+      "require": "./dist/cjs/Component",
+      "types": "./dist/types/Component",
+      "import": "./dist/Component",
+      "default": "./dist/Component"
+    },
+    "./Entity": {
+      "require": "./dist/cjs/Entity",
+      "types": "./dist/types/Entity",
+      "import": "./dist/Entity",
+      "default": "./dist/Entity"
+    },
+    "./ProcessorPlugin": {
+      "require": "./dist/cjs/ProcessorPlugin",
+      "types": "./dist/types/ProcessorPlugin",
+      "import": "./dist/ProcessorPlugin",
+      "default": "./dist/ProcessorPlugin"
+    },
+    "./plugin/Input": {
+      "require": "./dist/cjs/plugin/Input",
+      "types": "./dist/types/plugin/Input",
+      "import": "./dist/plugin/Input",
+      "default": "./dist/plugin/Input"
+    },
+    "./utilities/Math": {
+      "require": "./dist/cjs/utilities/Math",
+      "types": "./dist/types/utilities/Math",
+      "import": "./dist/utilities/Math",
+      "default": "./dist/utilities/Math"
+    }
   },
   "typesVersions": {
     "*": {
@@ -45,7 +74,7 @@
   "scripts": {
     "build": "npm run compile",
     "test": "jest",
-    "compile": "tsc",
+    "compile": "tsc -b ./tsconfig.esm.json ./tsconfig.cjs.json ./tsconfig.types.json",
     "clean": "rm -rf dist"
   },
   "repository": {
