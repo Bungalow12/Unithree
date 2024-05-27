@@ -4,8 +4,9 @@
   "description": "Unity3D inspired ThreeJS framework",
   "main": "packages/core/dist/App.js",
   "scripts": {
-    "build": "npm run build-core",
+    "build": "npm run build-core && npm run build-examples",
     "build-core": "cd packages/core && npm run build && cd ../..",
+    "build-examples": "cd packages/examples && npm run build && cd ../..",
     "test": "npm run test-core",
     "test-core": "cd packages/core && npm run test && cd ../.."
   },
