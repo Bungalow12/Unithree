@@ -1,6 +1,6 @@
 {
   "name": "@unithree/examples",
-  "version": "0.2.0",
+  "version": "1.0.0",
   "description": "Examples for the Unithree framework",
   "private": true,
   "main": "./dist/index.js",
