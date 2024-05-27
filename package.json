@@ -12,7 +12,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/Bungalow12/Unithree.git"
+    "url": "git+https://github.com/Bungalow12/Unithree.git"
   },
   "private": true,
   "workspaces": [
