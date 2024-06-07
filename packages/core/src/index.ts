@@ -9,8 +9,6 @@ import { Camera, Clock, Object3D, PerspectiveCamera, Scene, WebGLRenderer } from
 // TODO: Add a SceneLoader that takes the custom object types so that the loader would know how to process them
 //  Needs a file format.
 
-type UnithreeObject = Object3D | Entity;
-
 const scene = new Scene();
 const clock = new Clock();
 
@@ -117,7 +115,7 @@ const clearScene = () => {
 };
 
 /**
- * GEts a plugin class by the name of the type as a string
+ * Gets a plugin class by the name of the type as a string
  * @param {string} typeName class name as a string
  * @returns {ProcessorPlugin | null} The plugin cast to the specified type
  */
@@ -179,11 +177,11 @@ const dispose = (): void => {
 
 /**
  * Instantiates a new object and adds it to the scene
- * @param {UnithreeObject} object the new object or Entity to add
+ * @param {T extends Object3D} object the new object or Entity to add
  * @param {Object3D} parent the optional parent object
- * @returns {UnithreeObject} the object that has been added
+ * @returns {T extends Object3D} the object that has been added
  */
-const instantiateObject = (object: UnithreeObject, parent?: Object3D): UnithreeObject => {
+const instantiateObject = <T extends Object3D>(object: T, parent?: Object3D): T => {
   parent = parent ?? scene;
   if (object instanceof Entity) {
     entities.set(object.uuid, object);
