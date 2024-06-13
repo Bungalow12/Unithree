@@ -6,7 +6,7 @@
     "url": "https://github.com/Bungalow12/Unithree/issues"
   },
   "homepage": "https://github.com/Bungalow12/Unithree#readme",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Unity3D inspired ThreeJS framework",
   "source": "./src/index.ts",
   "files": [
