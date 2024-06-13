@@ -8,6 +8,14 @@ inspired by it and entity/component models.
 
 ## Documentation
 
+### Setup
+
+This is a ThreeJS based project so when installing via NPM please use:
+
+```bash
+npm install three @types/three @unithree/core
+```
+
 ### Core Concepts
 
 Unithree is built around a central state that houses the frame loop. This provides the processing of
